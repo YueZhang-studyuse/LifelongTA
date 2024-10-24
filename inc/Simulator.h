@@ -11,7 +11,7 @@
 class Simulator
 {
 public:
-    Simulator(Grid &grid, std::vector<int>& start_locs, ActionModelWithRotate* model):
+    Simulator(Grid &grid, std::vector<int>& start_locs, ActionModel* model):
         map(grid), model(model)
     {
         num_of_agents = start_locs.size();
@@ -57,7 +57,7 @@ public:
 private:
     Grid map;
 
-    ActionModelWithRotate* model;
+    ActionModel* model;
 
 
     // #timesteps for simulation

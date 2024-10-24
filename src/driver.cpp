@@ -117,7 +117,7 @@ int main(int argc, char **argv)
     planner->env->map_name = map_path.substr(map_path.find_last_of("/") + 1);
     planner->env->file_storage_path = vm["fileStoragePath"].as<std::string>();
 
-    ActionModelWithRotate *model = new ActionModelWithRotate(grid);
+    ActionModel *model = new ActionModel(grid);
     model->set_logger(logger);
 
     int team_size = read_param_json<int>(data, "teamSize");

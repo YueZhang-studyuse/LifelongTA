@@ -28,11 +28,11 @@ bool causalPIBT(int curr_id, int higher_id,std::vector<State>& prev_states,
 	  );
 
 
-Action getAction(State& prev, State& next);
+// Action getAction(State& prev, State& next);
 
 Action getAction(State& prev, int next_loc, SharedEnvironment* env);
 
-bool moveCheck(int id, std::vector<bool>& checked,
-		std::vector<DCR>& decided, std::vector<Action>& actions, std::vector<int>& prev_decision);
+// bool moveCheck(int id, std::vector<bool>& checked,
+// 		std::vector<DCR>& decided, std::vector<Action>& actions, std::vector<int>& prev_decision);
 }
 #endif

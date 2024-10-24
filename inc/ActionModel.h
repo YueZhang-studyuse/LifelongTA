@@ -5,26 +5,29 @@
 #include "Logger.h"
 
 /*
-  FW  - forward
-  CR  - Clockwise rotate
-  CCR - Counter clockwise rotate
-  W   - Wait
+  NO  - north
+  EA  - east
+  SO - south
+  WE   - West
+  WA   - Wait
   NA  - Not applicable
 */
-enum Action {FW, CR, CCR, W, NA};
+
+enum Action {N, E, S, WE, WA, NA};
 
 std::ostream& operator<<(std::ostream &stream, const Action &action);
 
-class ActionModelWithRotate
+
+class ActionModel
 {
 public:
     list<std::tuple<std::string,int,int,int>> errors;
 
-    ActionModelWithRotate(Grid & grid): grid(grid), rows(grid.rows), cols(grid.cols){
-        moves[0] = 1;
-        moves[1] = cols;
-        moves[2] = -1;
-        moves[3] = -cols;
+    ActionModel(Grid & grid): grid(grid), rows(grid.rows), cols(grid.cols){
+        moves[0] = -cols;
+        moves[1] = 1;
+        moves[2] = cols;
+        moves[3] = -1;
 
     };
 
@@ -50,23 +53,24 @@ protected:
     State result_state(const State & prev, Action action)
     {
         int new_location = prev.location;
-        int new_orientation = prev.orientation;
-        if (action == Action::FW)
+        if (action == Action::N)
         {
-            new_location = new_location += moves[prev.orientation];
+            new_location = new_location += moves[0];
         }
-        else if (action == Action::CR)
+        else if (action == Action::E)
         {
-            new_orientation = (prev.orientation + 1) % 4;
+            new_location = new_location += moves[1];
       
         }
-        else if (action == Action::CCR)
+        else if (action == Action::S)
         {
-            new_orientation = (prev.orientation - 1) % 4;
-            if (new_orientation == -1)
-                new_orientation = 3;
+            new_location = new_location += moves[2];
+        }
+        else if (action == Action::WE)
+        {
+            new_location = new_location += moves[3];
         }
 
-        return State(new_location, prev.timestep + 1, new_orientation);
+        return State(new_location, prev.timestep + 1);
     }
 };

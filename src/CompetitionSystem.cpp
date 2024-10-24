@@ -47,64 +47,64 @@ void BaseSystem::sync_shared_env() {
 }
 
 
-std::pair<vector<Action> ,vector<int> > BaseSystem::plan_wrapper()
-{
-    vector<Action> actions;
-    vector<int> proposed_schedule;
-    planner->compute(plan_time_limit, actions,proposed_schedule);
-    return {actions, proposed_schedule};
-}
+// std::pair<vector<Action> ,vector<int> > BaseSystem::plan_wrapper()
+// {
+//     vector<Action> actions;
+//     vector<int> proposed_schedule;
+//     planner->compute(plan_time_limit, actions,proposed_schedule);
+//     return {actions, proposed_schedule};
+// }
 
 
-void BaseSystem::plan(vector<Action> & actions,vector<int> & proposed_schedule)
-{
+// void BaseSystem::plan(vector<Action> & actions,vector<int> & proposed_schedule)
+// {
 
-    int timestep = simulator.get_curr_timestep();
+//     int timestep = simulator.get_curr_timestep();
 
-    using namespace std::placeholders;
-    if (started && future.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready)
-    {
-        std::cout << started << "     " << (future.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) << std::endl;
-        if(logger)
-        {
-            logger->log_info("planner cannot run because the previous run is still running", timestep);
-        }
+//     using namespace std::placeholders;
+//     if (started && future.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready)
+//     {
+//         std::cout << started << "     " << (future.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) << std::endl;
+//         if(logger)
+//         {
+//             logger->log_info("planner cannot run because the previous run is still running", timestep);
+//         }
 
-        if (future.wait_for(std::chrono::milliseconds(plan_time_limit)) == std::future_status::ready)
-        {
-            task_td.join();
-            started = false;
-            auto res = future.get();
-            actions = res.first;
-            proposed_schedule = res.second;
-            return;
-        }
-        logger->log_info("planner timeout", timestep);
-        return;
-    }
+//         if (future.wait_for(std::chrono::milliseconds(plan_time_limit)) == std::future_status::ready)
+//         {
+//             task_td.join();
+//             started = false;
+//             auto res = future.get();
+//             actions = res.first;
+//             proposed_schedule = res.second;
+//             return;
+//         }
+//         logger->log_info("planner timeout", timestep);
+//         return;
+//     }
 
-    std::packaged_task<std::pair<vector<Action> ,vector<int> >()> task(std::bind(&BaseSystem::plan_wrapper, this));
-    future = task.get_future();
-    if (task_td.joinable())
-    {
-        task_td.join();
-    }
-    env->plan_start_time = std::chrono::steady_clock::now();
-    task_td = std::thread(std::move(task));
-    started = true;
-    if (future.wait_for(std::chrono::milliseconds(plan_time_limit)) == std::future_status::ready)
-    {
-        task_td.join();
-        started = false;
-        auto res = future.get();
-        actions = res.first;
-        proposed_schedule = res.second;
+//     std::packaged_task<std::pair<vector<Action> ,vector<int> >()> task(std::bind(&BaseSystem::plan_wrapper, this));
+//     future = task.get_future();
+//     if (task_td.joinable())
+//     {
+//         task_td.join();
+//     }
+//     env->plan_start_time = std::chrono::steady_clock::now();
+//     task_td = std::thread(std::move(task));
+//     started = true;
+//     if (future.wait_for(std::chrono::milliseconds(plan_time_limit)) == std::future_status::ready)
+//     {
+//         task_td.join();
+//         started = false;
+//         auto res = future.get();
+//         actions = res.first;
+//         proposed_schedule = res.second;
 
-        return;
-    }
-    logger->log_info("planner timeout", timestep);
-    return;
-}
+//         return;
+//     }
+//     logger->log_info("planner timeout", timestep);
+//     return;
+// }
 
 
 bool BaseSystem::planner_initialize()
@@ -169,7 +169,9 @@ void BaseSystem::simulate(int simulation_time)
 
         vector<Action> actions;
         vector<int> proposed_schedule;
-        plan(actions,proposed_schedule);
+        //plan(actions,proposed_schedule);
+        env->plan_start_time = std::chrono::steady_clock::now();
+        planner->compute(plan_time_limit, actions,proposed_schedule);
 
         auto end = std::chrono::steady_clock::now();
 
@@ -246,8 +248,8 @@ void BaseSystem::saveResults(const string &fileName, int screen) const
 {
     json js;
     // Save action model
-    js["actionModel"] = "MAPF_T";
-    js["version"] = "2024 LoRR";
+    js["actionModel"] = "MAPF";
+    //js["version"] = "2024 LoRR";
 
     std::string feasible = fast_mover_feasible ? "Yes" : "No";
     js["AllValid"] = feasible;

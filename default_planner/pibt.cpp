@@ -31,9 +31,9 @@ bool causalPIBT(int curr_id, int higher_id,std::vector<State>& prev_states,
 	
 	assert(next_states[curr_id].location == -1);
     int prev_loc = prev_states[curr_id].location;
-	int prev_orientation = prev_states[curr_id].orientation;
+	//int prev_orientation = prev_states[curr_id].orientation;
 	int next[4] = { prev_loc + 1,prev_loc + lns.env->cols, prev_loc - 1, prev_loc - lns.env->cols};
-	int orien_next_v = next[prev_orientation];
+	// int orien_next_v = next[prev_orientation];
 
 	assert(prev_loc >= 0 && prev_loc < lns.env->map.size());
 
@@ -63,10 +63,10 @@ bool causalPIBT(int curr_id, int higher_id,std::vector<State>& prev_states,
 			int diff[4] = {1,lns.env->cols,-1,-lns.env->cols};
 			if (a.heuristic == b.heuristic){
 					//tie break on prefer moving forward
-					if (a.location==orien_next_v && b.location!=orien_next_v)
-						return true;
-					if (a.location!=orien_next_v && b.location==orien_next_v)
-						return false;
+					// if (a.location==orien_next_v && b.location!=orien_next_v)
+					// 	return true;
+					// if (a.location!=orien_next_v && b.location==orien_next_v)
+					// 	return false;
 					// random tie break
 					return a.tie_breaker < b.tie_breaker;
 			}
@@ -74,7 +74,8 @@ bool causalPIBT(int curr_id, int higher_id,std::vector<State>& prev_states,
 		});
 
 
-    for (auto& next: successors){
+    for (auto& next: successors)
+	{
 		if(occupied[next.location])
 			continue;
 		assert(validateMove(prev_loc, next.location, lns.env));
@@ -104,93 +105,73 @@ bool causalPIBT(int curr_id, int higher_id,std::vector<State>& prev_states,
     next_states.at(curr_id) = State(prev_loc,-1 ,-1);;
     decision.at(prev_loc) = curr_id;     
 
-	#ifndef NDEBUG
+	//#ifndef NDEBUG
 		std::cout<<"false: "<< next_states[curr_id].location<<","<<next_states[curr_id].orientation <<std::endl;
-	#endif   
+	//#endif   
 
     return false;
 }
 
-Action getAction(State& prev, State& next){
-	if (prev.location == next.location && prev.orientation == next.orientation){
-		return Action::W;
-	}
-	if (prev.location != next.location && prev.orientation == next.orientation){
-		return Action::FW;
-	}
-	if (next.orientation  == (prev.orientation+1)%4){
-		return Action::CR;
-	}
-	if (next.orientation  == (prev.orientation+3)%4){
-		return Action::CCR;
-	}
-	assert(false);
-	return Action::W;
-}
+// Action getAction(State& prev, State& next){
+// 	if (prev.location == next.location && prev.orientation == next.orientation){
+// 		return Action::W;
+// 	}
+// 	if (prev.location != next.location && prev.orientation == next.orientation){
+// 		return Action::FW;
+// 	}
+// 	if (next.orientation  == (prev.orientation+1)%4){
+// 		return Action::CR;
+// 	}
+// 	if (next.orientation  == (prev.orientation+3)%4){
+// 		return Action::CCR;
+// 	}
+// 	assert(false);
+// 	return Action::W;
+// }
 
-Action getAction(State& prev, int next_loc, SharedEnvironment* env){
-	if (prev.location == next_loc){
-		return Action::W;
-	}
+Action getAction(State& prev, int next_loc, SharedEnvironment* env)
+{
 	int diff = next_loc -prev.location;
-	int orientation;
-	if (diff == 1){
-		orientation = 0;
-	}
-	if (diff == -1){
-		orientation = 2;
-	}
-	if (diff == env->cols){
-		orientation = 1;
-	}
-	if (diff == -env->cols){
-		orientation = 3;
-	}
-	if (orientation == prev.orientation){
-		return Action::FW;
-	}
-	if (orientation  == (prev.orientation+1)%4){
-		return Action::CR;
-	}
-	if (orientation  == (prev.orientation+3)%4){
-		return Action::CCR;
-	}
-	if (orientation  == (prev.orientation+2)%4){
-		return Action::CR;
-	}
-	assert(false);
-
-
+	if (diff == 1)
+		return Action::E;
+	else if (diff == -1)
+		return Action::WE;
+	else if (diff > 0)
+		return Action::S;
+	else if (diff == 0)
+		return Action::WA;
+	else
+		return Action::N;
 
 }
 
-bool moveCheck(int id, std::vector<bool>& checked,
-		std::vector<DCR>& decided, std::vector<Action>& actions, std::vector<int>& prev_decision){
-	if (checked.at(id) && actions.at(id) == Action::FW)
-		return true;
-	checked.at(id) = true;
+// bool moveCheck(int id, std::vector<bool>& checked,
+// 		std::vector<DCR>& decided, std::vector<Action>& actions, std::vector<int>& prev_decision){
+// 	if (checked.at(id) && actions.at(id) == Action::FW)
+// 		return true;
+// 	checked.at(id) = true;
 
-	if (actions.at(id) != Action::FW)
-		return false;
+// 	if (actions.at(id) != Action::FW)
+// 		return false;
 
-	//move forward
-	int target = decided.at(id).loc;
-	assert(target != -1);
+// 	//move forward
+// 	int target = decided.at(id).loc;
+// 	assert(target != -1);
 
-	int na = prev_decision[target];
-	if (na == -1)
-		return true;
+// 	int na = prev_decision[target];
+// 	if (na == -1)
+// 		return true;
 
-	if (moveCheck(na,checked,decided,actions,prev_decision))
-		return true;
-	actions.at(id) = Action::W;
-	return false;
+// 	if (moveCheck(na,checked,decided,actions,prev_decision))
+// 		return true;
+// 	actions.at(id) = Action::W;
+// 	return false;
 	
 
 	
 
 	
 	
-}
+//}
 
 }

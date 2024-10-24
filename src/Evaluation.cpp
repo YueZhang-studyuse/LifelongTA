@@ -16,25 +16,25 @@ void DummyPlanner::load_plans(std::string fname){
             return;
         }
         agent_plans.emplace_back();
-        for (auto& ch: it->get<std::string>())
-        {
-            if (ch=='W')
-            {
-                agent_plans.back().push_back(Action::W);
-            }
-            else if (ch=='C')
-            {
-                agent_plans.back().push_back(Action::CCR);
-            }
-            else if (ch=='R')
-            {
-                agent_plans.back().push_back(Action::CR);
-            }
-            else if (ch=='F')
-            {
-                agent_plans.back().push_back(Action::FW);
-            }
-        }
+        // for (auto& ch: it->get<std::string>())
+        // {
+        //     if (ch=='WA')
+        //     {
+        //         agent_plans.back().push_back(Action::W);
+        //     }
+        //     else if (ch=='C')
+        //     {
+        //         agent_plans.back().push_back(Action::CCR);
+        //     }
+        //     else if (ch=='R')
+        //     {
+        //         agent_plans.back().push_back(Action::CR);
+        //     }
+        //     else if (ch=='F')
+        //     {
+        //         agent_plans.back().push_back(Action::FW);
+        //     }
+        // }
     }
 }
 

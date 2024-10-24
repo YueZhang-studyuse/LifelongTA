@@ -56,14 +56,15 @@ namespace DefaultPlanner{
             return;
     };
 
-    void plan(int time_limit,vector<Action> & actions, SharedEnvironment* env){
+    void plan(int time_limit,vector<Action> & actions, SharedEnvironment* env)
+    {
         TimePoint start_time = std::chrono::steady_clock::now();
         //cap the time for distance to goal heuristic table initialisation to half of the given time_limit;
 
         int pibt_time = PIBT_RUNTIME_PER_100_AGENTS * env->num_of_agents/100;
         //traffic flow assignment end time, leave PIBT_RUNTIME_PER_100_AGENTS ms per 100 agent and TRAFFIC_FLOW_ASSIGNMENT_END_TIME_TOLERANCE ms for computing pibt actions;
         TimePoint end_time = start_time + std::chrono::milliseconds(time_limit - pibt_time - TRAFFIC_FLOW_ASSIGNMENT_END_TIME_TOLERANCE); 
-        // cout << "plan limit " << time_limit <<endl;
+        cout << "plan limit " << time_limit <<endl;
 
         if (env->curr_timestep == 0){
             dummy_goals.resize(env->num_of_agents);
@@ -115,13 +116,14 @@ namespace DefaultPlanner{
                 decided[i].loc = env->curr_states[i].location;
                 assert(decided[i].state == DONE::DONE);
             }
-            if (prev_states[i].location == decided[i].loc){
-                decided[i].state = DONE::DONE;
-            }
-            if (decided[i].state == DONE::NOT_DONE){
-                decision.at(decided[i].loc) = i;
-                next_states[i] = State(decided[i].loc,-1,-1);
-            }
+            // if (prev_states[i].location == decided[i].loc){
+            //     decided[i].state = DONE::DONE;
+            // }
+            // if (decided[i].state == DONE::NOT_DONE){
+            //     decision.at(decided[i].loc) = i;
+            //     next_states[i] = State(decided[i].loc,-1,-1);
+            // }
+            decided[i].state = DONE::DONE;
 
             if(require_guide_path[i])
                 p[i] = p_copy[i];
@@ -158,11 +160,13 @@ namespace DefaultPlanner{
 
         // cout <<"time used: " <<  std::chrono::duration_cast<milliseconds>(std::chrono::steady_clock::now() - env->plan_start_time).count() <<endl;;
         //pibt
-        for (int i : ids){
-            if (decided[i].state == DONE::NOT_DONE){
-                continue;
-            }
-            if (next_states[i].location==-1){
+        for (int i : ids)
+        {
+            // if (decided[i].state == DONE::NOT_DONE){
+            //     continue;
+            // }
+            if (next_states[i].location==-1)
+            {
                 assert(prev_states[i].location >=0 && prev_states[i].location < env->map.size());
                 causalPIBT(i,-1,prev_states,next_states,
                     prev_decision,decision,
@@ -171,12 +175,14 @@ namespace DefaultPlanner{
         }
         
         actions.resize(env->num_of_agents);
-        for (int id : ids){
+        for (int id : ids)
+        {
             //clear the decision table based on which agent has next_states
             if (next_states.at(id).location!= -1)
                 decision.at(next_states.at(id).location) = -1;
 
-            if (next_states.at(id).location >=0){
+            if (next_states.at(id).location >=0)
+            {
                 decided.at(id) = DCR({next_states.at(id).location,DONE::NOT_DONE});
             }
             actions.at(id) = getAction(prev_states.at(id),decided.at(id).loc, env);
@@ -184,11 +190,11 @@ namespace DefaultPlanner{
 
         }
 
-        for (int id=0;id < env->num_of_agents ; id++){
-            if (!checked.at(id) && actions.at(id) == Action::FW){
-                moveCheck(id,checked,decided,actions,prev_decision);
-            }
-        }
+        // for (int id=0;id < env->num_of_agents ; id++){
+        //     if (!checked.at(id) && actions.at(id) == Action::FW){
+        //         moveCheck(id,checked,decided,actions,prev_decision);
+        //     }
+        // }
 
 
 
