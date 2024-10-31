@@ -6,6 +6,12 @@ set(CMAKE_CXX_STANDARD 17)
 # Set the default value of PYTHON to false
 option(PYTHON "Enable Python" OFF)
 
+option(CXX "enable C++ compilation" ON)
+
+if(CXX)
+  enable_language(CXX)
+endif()
+
 if(PYTHON)
     set(PYTHON_FLAG 1)
 else()
@@ -23,6 +29,8 @@ IF(NOT CMAKE_BUILD_TYPE)
     #SET(CMAKE_BUILD_TYPE "MINSIZEREL")
 ENDIF()
 
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
+
 include_directories("inc")
 
 # default planner
@@ -37,6 +45,10 @@ ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)
 find_package( Boost 1.49.0 REQUIRED COMPONENTS program_options system filesystem log log_setup)
 
 include_directories( ${Boost_INCLUDE_DIRS} )
+
+find_package(GUROBI REQUIRED)
+
+include_directories(${GUROBI_INCLUDE_DIRS})
 
 
 IF(PYTHON)
@@ -69,10 +81,12 @@ IF(PYTHON)
 
 ELSE()
     message(STATUS "Python support is disabled")
+
     
+    message(${GUROBI_CXX_LIBRARY})
 
     add_executable(lifelong ${SOURCES} )
-    target_link_libraries(lifelong ${Boost_LIBRARIES})
+    target_link_libraries(lifelong ${Boost_LIBRARIES} ${GUROBI_CXX_LIBRARY} ${GUROBI_LIBRARY})
     target_compile_definitions(lifelong PRIVATE PYTHON=${PYTHON_FLAG})
 ENDIF()
 
