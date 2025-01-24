@@ -1,6 +1,41 @@
 # Changelog
 
+Version 2.1.2 - 2025-01-19
+----------------------------
+Fixed:
+- Bug: If an entry abandons an agent's task without re-assigning a new task, the task manager does not apply this abandon command.
+- Bug: Upgrade file list missing default planner files.
+
+Version 2.1.1 - 2024-11-18
+----------------------------
+Fixed:
+- Bug: Solution costs counted multiple times.
+- Bug: When reassigning a task to an agent with a smaller id, `task->agent_assigned` will be reset to -1 instead of the smaller id agent.  
+
+Added:
+- Docs explaining the anytime behaviour of the default planner.
+
+
+Version 2.1.0 - 2024-11-15
+----------------------------
+Added:
+- Added `new_tasks` API to `SharedEnvironment` to notify the entry of new tasks released at the current timestep.
+- Added `new_freeagents` API to `SharedEnvironment` to notify the entry of new free robots, who newly completed their assigned task, at the current timestep.
+- Added `--logDetailLevel` option to specify the level of details of the log file.
+
+Changes:
+- API `vector<Task> task_pool` in `SharedEnvironment` is now removed. Use `unordered_map<int, Task> task_pool` instead, which uses `task_id` as the key.
+- Documentation updated to reflect the changes in the API.
+- The competition system now waits for entry to return and records the number of timeouts, then progress to the simulator. This prevents the entry using the unrecorded time spent on the simulator.
+- Output JSON records a number of entry timeouts, invalid schedules, and invalid actions.
+- Default Scheduler now uses the new API to schedule tasks.
+- The `update_goal_locations` function in Default Entry is updated to use the new `task_pool` API. (Warning, when updating your entry, make sure you review the changes on `Entry.cpp` and decide how you adapt the changes to your entry implementation.)
+- Update the Python binding to support the updated API.
+- Updated the example python scheduler to use the new API. (Warning, when updating, make sure you review the changes on `pyTaskScheduler.py` and decide how you adapt the changes to your scheduler implementation.)
+- Assigning `task_id` `-1` to an agent to indicate no assigned task. This drops any existing but unopened task. However, assign `-1` to an agent with opened task leads to an invalid schedule error
+
 Version 2.0.0 - 2024-10-2
+----------------------------
 
 Added:
 - Added support for task scheduler
