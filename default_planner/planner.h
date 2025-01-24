@@ -13,6 +13,10 @@ namespace DefaultPlanner{
 
     void plan(int time_limit,vector<Action> & actions,  SharedEnvironment* env);
 
+    std::vector<Int4> get_flow();
+
+    std::vector<Int4> get_opened_flow(SharedEnvironment* env);
+
 
 }
 #endif

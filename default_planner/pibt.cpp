@@ -25,8 +25,8 @@ int get_gp_h(TrajLNS& lns, int ai, int target){
 bool causalPIBT(int curr_id, int higher_id,std::vector<State>& prev_states,
 	 std::vector<State>& next_states,
       std::vector<int>& prev_decision, std::vector<int>& decision, 
-	  std::vector<bool>& occupied, TrajLNS& lns
-	  ){
+	  std::vector<bool>& occupied, TrajLNS& lns)
+	  {
 	// The PIBT works like a causal PIBT when using MAPF-T model. But a normal PIBT when using MAPF model.
 	
 	assert(next_states[curr_id].location == -1);
@@ -43,7 +43,8 @@ bool causalPIBT(int curr_id, int higher_id,std::vector<State>& prev_states,
 	std::vector<int> neighbors;
 	std::vector<PIBT_C> successors;
 	getNeighborLocs(&(lns.neighbors),neighbors,prev_loc);
-	for (auto& neighbor: neighbors){
+	for (auto& neighbor: neighbors)
+	{
 
 		assert(validateMove(prev_loc, neighbor, lns.env));
 
@@ -60,7 +61,7 @@ bool causalPIBT(int curr_id, int higher_id,std::vector<State>& prev_states,
 	std::sort(successors.begin(), successors.end(), 
 		[&](PIBT_C& a, PIBT_C& b)
 		{
-			int diff[4] = {1,lns.env->cols,-1,-lns.env->cols};
+			// int diff[4] = {1,lns.env->cols,-1,-lns.env->cols};
 			if (a.heuristic == b.heuristic){
 					//tie break on prefer moving forward
 					// if (a.location==orien_next_v && b.location!=orien_next_v)
@@ -76,9 +77,9 @@ bool causalPIBT(int curr_id, int higher_id,std::vector<State>& prev_states,
 
     for (auto& next: successors)
 	{
-		if(occupied[next.location])
-			continue;
-		assert(validateMove(prev_loc, next.location, lns.env));
+		// if(occupied[next.location])
+		// 	continue;
+		// assert(validateMove(prev_loc, next.location, lns.env));
 		
 		if (next.location == -1)
 			continue;

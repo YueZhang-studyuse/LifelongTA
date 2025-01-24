@@ -2,7 +2,6 @@
 #include <Entry.h>
 
 //default planner includes
-#include "planner.h"
 #include "const.h"
 
 
@@ -24,4 +23,10 @@ void MAPFPlanner::plan(int time_limit,vector<Action> & actions)
 
     DefaultPlanner::plan(limit, actions, env);
     return;
+}
+
+std::vector<DefaultPlanner::Int4> MAPFPlanner::get_flow() 
+{
+    // return DefaultPlanner::get_flow();
+    return DefaultPlanner::get_opened_flow(env);
 }

@@ -2,6 +2,7 @@
 #include <ctime>
 #include "SharedEnv.h"
 #include "ActionModel.h"
+#include "planner.h"
 
 
 class MAPFPlanner
@@ -18,5 +19,7 @@ public:
 
     // return next states for all agents
     virtual void plan(int time_limit, std::vector<Action> & plan);
+
+    std::vector<DefaultPlanner::Int4> get_flow();
 
 };

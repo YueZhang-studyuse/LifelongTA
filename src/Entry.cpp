@@ -14,8 +14,9 @@ void Entry::initialize(int preprocess_time_limit)
 void Entry::compute(int time_limit, std::vector<Action> & plan, std::vector<int> & proposed_schedule)
 {
     //first call task schedule
-    
 
+    
+    scheduler->set_flow(planner->get_flow());
     scheduler->plan(time_limit,proposed_schedule);
 
     //then update the first unfinished errand/location of tasks for planner reference

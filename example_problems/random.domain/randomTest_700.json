@@ -3,6 +3,6 @@
     "agentFile": "agents/randomTest_700.agents",
     "teamSize": 700,
     "taskFile": "tasks/randomTest.tasks",
-    "numTasksReveal": 1,
+    "numTasksReveal": 1.5,
     "version": "2024 LoRR"
 }

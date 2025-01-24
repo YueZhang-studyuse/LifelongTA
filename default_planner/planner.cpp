@@ -21,10 +21,43 @@ namespace DefaultPlanner{
     std::vector<bool> checked;
     std::vector<bool> require_guide_path;
     std::vector<int> dummy_goals;
-    TrajLNS trajLNS;
     std::mt19937 mt1;
+    TrajLNS trajLNS;
+
+
+    std::vector<Int4> get_flow() 
+    {
+        return trajLNS.flow;
+    }
+
+    std::vector<Int4> get_opened_flow(SharedEnvironment* env)
+    {
+        std::vector<Int4> background_flow(env->map.size(),Int4({0,0,0,0}));
+        for (int i_task=0 ; i_task < env->task_pool.size() ;i_task++)
+        {
+            if (env->task_pool[i_task].idx_next_loc > 0) //task opened
+            {
+                int agent = env->task_pool[i_task].agent_assigned;
+                if (trajLNS.trajs[agent].empty())
+                    continue;
+                int loc, prev_loc, diff, d;
+                for (int j = 1; j < trajLNS.trajs[agent].size(); j++)
+                {
+                    loc = trajLNS.trajs[agent][j];
+                    prev_loc = trajLNS.trajs[agent][j-1];
+                    diff = loc - prev_loc;
+                    d = get_d(diff, env);
+
+                    background_flow[prev_loc].d[d] += 1;
+
+                }
+            }
+        }
+        return background_flow;
+    }
 
         
+
     void initialize(int preprocess_time_limit, SharedEnvironment* env){
         // cout<<"plan initiallize limit "<< preprocess_time_limit<<endl;
             assert(env->num_of_agents != 0);
