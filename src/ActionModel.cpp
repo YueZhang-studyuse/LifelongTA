@@ -18,7 +18,8 @@ std::ostream& operator<<(std::ostream &stream, const Action &action)
     return stream;
 }
 
-bool ActionModel::is_valid(const vector<State>& prev, const vector<Action> & actions)
+
+bool ActionModelWithRotate::is_valid(const vector<State>& prev, const vector<Action> & actions, int timestep)
 {
     if (prev.size() != actions.size())
     {
@@ -38,6 +39,7 @@ bool ActionModel::is_valid(const vector<State>& prev, const vector<Action> & act
         {
             cout << "ERROR: agent " << i << " moves out of map size. " << endl;
             errors.push_back(make_tuple("unallowed move",i,-1,next[i].timestep));
+            logger->log_warning("Planner Error: unallowed move for agent " + std::to_string(i) + " from location " + std::to_string(prev[i].location) + " to location " + std::to_string(next[i].location),timestep+1);
             return false;
         }
 
@@ -45,6 +47,7 @@ bool ActionModel::is_valid(const vector<State>& prev, const vector<Action> & act
         {
             cout << "ERROR: agent " << i << " moves to an obstacle. " << endl;
             errors.push_back(make_tuple("unallowed move",i,-1,next[i].timestep));
+            logger->log_warning("Planner Error: unallowed move for agent " + std::to_string(i) + " from location " + std::to_string(prev[i].location) + " to location " + std::to_string(next[i].location),timestep+1);
             return false;
         }
 
@@ -52,6 +55,7 @@ bool ActionModel::is_valid(const vector<State>& prev, const vector<Action> & act
         if (vertex_occupied.find(next[i].location) != vertex_occupied.end()) {
             cout << "ERROR: agents " << i << " and " << vertex_occupied[next[i].location] << " have a vertex conflict. " << endl;
             errors.push_back(make_tuple("vertex conflict",i,vertex_occupied[next[i].location], next[i].timestep));
+            logger->log_warning("Planner Error: vertex conflict for agent " + std::to_string(i) + " and agent " + std::to_string(vertex_occupied[next[i].location]) + " at location " + std::to_string(next[i].location),timestep+1);
             return false;
         }
 
@@ -60,6 +64,7 @@ bool ActionModel::is_valid(const vector<State>& prev, const vector<Action> & act
         if (edge_occupied.find({prev[i].location, next[i].location}) != edge_occupied.end()) {
             cout << "ERROR: agents " << i << " and " << edge_occupied[{prev[i].location, next[i].location}] << " have an edge conflict. " << endl;
             errors.push_back(make_tuple("edge conflict", i, edge_occupied[{prev[i].location, next[i].location}], next[i].timestep));
+            logger->log_warning("Planner Error: vertex conflict for agent " + std::to_string(i) + " and agent " + std::to_string(edge_occupied[{prev[i].location, next[i].location}]) + " from location " + std::to_string(prev[i].location) + " to location " + std::to_string(next[i].location));
             return false;
         }
         

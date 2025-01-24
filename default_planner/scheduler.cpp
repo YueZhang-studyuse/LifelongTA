@@ -4,12 +4,15 @@
 namespace DefaultPlanner{
 
 std::mt19937 mt;
+std::unordered_set<int> free_agents;
+std::unordered_set<int> free_tasks;
 
 void schedule_initialize(int preprocess_time_limit, SharedEnvironment* env)
 {
     // cout<<"schedule initialise limit" << preprocess_time_limit<<endl;
     DefaultPlanner::init_heuristics(env);
     mt.seed(0);
+    return;
 }
 
 void schedule_plan(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Int4> background_flow)
@@ -19,6 +22,9 @@ void schedule_plan(int time_limit, std::vector<int> & proposed_schedule,  Shared
     // TimePoint endtime = std::chrono::steady_clock::now() + std::chrono::milliseconds(time_limit);
     // // cout<<"schedule plan limit" << time_limit <<endl;
 
+    // the default scheduler keep track of all the free agents and unassigned (=free) tasks across timesteps
+    free_agents.insert(env->new_freeagents.begin(), env->new_freeagents.end());
+    free_tasks.insert(env->new_tasks.begin(), env->new_tasks.end());
     // proposed_schedule.resize(env->num_of_agents, -1); //default no schedule
 
 

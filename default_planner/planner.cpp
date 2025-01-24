@@ -56,10 +56,16 @@ namespace DefaultPlanner{
         return background_flow;
     }
 
-        
-
+    /**
+     * @brief Default planner initialization
+     * 
+     * @param preprocess_time_limit time limit for preprocessing in milliseconds
+     * @param env shared environment object
+     * 
+     * The initialization function initializes the default planner data structures and heuristics tables.
+     */
     void initialize(int preprocess_time_limit, SharedEnvironment* env){
-        // cout<<"plan initiallize limit "<< preprocess_time_limit<<endl;
+            //initialise all required data structures
             assert(env->num_of_agents != 0);
             p.resize(env->num_of_agents);
             decision.resize(env->map.size(), -1);
@@ -74,6 +80,7 @@ namespace DefaultPlanner{
                 ids[i] = i;
             }
 
+            // initialise the heuristics tables containers
             init_heuristics(env);
             mt1.seed(0);
             srand(0);
@@ -81,6 +88,7 @@ namespace DefaultPlanner{
             new (&trajLNS) TrajLNS(env, global_heuristictable, global_neighbors);
             trajLNS.init_mem();
 
+            //assign intial priority to each agent
             std::shuffle(ids.begin(), ids.end(), mt1);
             for (int i = 0; i < ids.size();i++){
                 p[ids[i]] = ((double)(ids.size() - i))/((double)(ids.size()+1));
@@ -89,16 +97,31 @@ namespace DefaultPlanner{
             return;
     };
 
-    void plan(int time_limit,vector<Action> & actions, SharedEnvironment* env)
-    {
+    /**
+     * @brief Default planner plan function
+     * 
+     * @param time_limit time limit for planning in milliseconds
+     * @param actions vector of actions to be populated by the planner
+     * @param env shared environment object
+     * 
+     * The plan function is the main function of the default planner. 
+     * It computes the actions for the agents based on the current state of the environment.
+     * The function first checks assignments/goal location changes and perform the necessary updates.
+     * It then computes and optimises traffic flow optimised guide paths for the agents.
+     * Finally, it computes the actions for the agents using PIBT that follows the guide path heuristics and returns the actions.
+     * Note that the default planner ignores the turning action costs, and post-processes turning actions as additional delays on top of original plan.
+     */
+    void plan(int time_limit,vector<Action> & actions, SharedEnvironment* env){
+
+        // calculate the time planner should stop optimsing traffic flows and return the plan.
         TimePoint start_time = std::chrono::steady_clock::now();
         //cap the time for distance to goal heuristic table initialisation to half of the given time_limit;
-
         int pibt_time = PIBT_RUNTIME_PER_100_AGENTS * env->num_of_agents/100;
         //traffic flow assignment end time, leave PIBT_RUNTIME_PER_100_AGENTS ms per 100 agent and TRAFFIC_FLOW_ASSIGNMENT_END_TIME_TOLERANCE ms for computing pibt actions;
         TimePoint end_time = start_time + std::chrono::milliseconds(time_limit - pibt_time - TRAFFIC_FLOW_ASSIGNMENT_END_TIME_TOLERANCE); 
         cout << "plan limit " << time_limit <<endl;
 
+        // recrod the initial location of each agent as dummy goals in case no goal is assigned to the agent.
         if (env->curr_timestep == 0){
             dummy_goals.resize(env->num_of_agents);
             for(int i=0; i<env->num_of_agents; i++)
@@ -107,16 +130,15 @@ namespace DefaultPlanner{
             }
         }
 
-
-
-        // cout<<"---timestep,"<< env->curr_timestep<<endl;
+        // data sturcture for record the previous decision of each agent
         prev_decision.clear();
         prev_decision.resize(env->map.size(), -1);
 
+        // update the status of each agent and prepare for planning
         int count = 0;
         for(int i=0; i<env->num_of_agents; i++)
         {
-        
+            //initialise the shortest distance heuristic table for the goal location of the agent
             if ( ( std::chrono::steady_clock::now() < end_time) ){
                 for(int j=0; j<env->goal_locations[i].size(); j++)
                 {
@@ -127,7 +149,9 @@ namespace DefaultPlanner{
                         }
                 }
             }
+            
 
+            // set the goal location of each agent
             if (env->goal_locations[i].empty()){
                 trajLNS.tasks[i] = dummy_goals.at(i);
                 p[i] = p_copy[i];
@@ -136,11 +160,13 @@ namespace DefaultPlanner{
                 trajLNS.tasks[i] = env->goal_locations[i].front().first;
             }
 
+            // check if the agent need a guide path update, when the agent has no guide path or the guide path does not end at the goal location
             require_guide_path[i] = false;
             if (trajLNS.trajs[i].empty() || trajLNS.trajs[i].back() != trajLNS.tasks[i])
                     require_guide_path[i] = true;
             
-
+            // check if the agent completed the action in the previous timestep
+            // if not, the agent is till turning towards the action direction, we do not need to plan new action for the agent
             assert(env->curr_states[i].location >=0);
             prev_states[i] = env->curr_states[i];
             next_states[i] = State();
@@ -158,18 +184,20 @@ namespace DefaultPlanner{
             // }
             decided[i].state = DONE::DONE;
 
+            // reset the pibt priority if the agent reached prvious goal location and switch to new goal location
             if(require_guide_path[i])
                 p[i] = p_copy[i];
             else if (!env->goal_locations[i].empty())
                 p[i] = p[i]+1;
 
+            // give priority bonus to the agent if the agent is in a deadend location
             if (!env->goal_locations[i].empty() && trajLNS.neighbors[env->curr_states[i].location].size() == 1){
-                //deadend agent will be given priority bonus
                 p[i] = p[i] + 10;
             }
             
         }
-        //task change
+
+        // compute the congestion minimised guide path for the agents that need guide path update
         for (int i = 0; i < env->num_of_agents;i++){
             if (std::chrono::steady_clock::now() >end_time)
                 break;
@@ -180,12 +208,11 @@ namespace DefaultPlanner{
             }
         }
 
-
+        // iterate and recompute the guide path to optimise traffic flow
         std::unordered_set<int> updated;
-
         frank_wolfe(trajLNS, updated,end_time);
 
-
+        // sort agents based on the current priority
         std::sort(ids.begin(), ids.end(), [&](int a, int b) {
                 return p.at(a) > p.at(b);
             }
@@ -207,6 +234,7 @@ namespace DefaultPlanner{
             }
         }
         
+        // post processing the targeted next location to turning or moving actions
         actions.resize(env->num_of_agents);
         for (int id : ids)
         {
@@ -218,6 +246,8 @@ namespace DefaultPlanner{
             {
                 decided.at(id) = DCR({next_states.at(id).location,DONE::NOT_DONE});
             }
+
+            // post process the targeted next location to turning or moving actions
             actions.at(id) = getAction(prev_states.at(id),decided.at(id).loc, env);
             checked.at(id) = false;
 
