@@ -33,11 +33,12 @@ namespace DefaultPlanner{
     std::vector<Int4> get_opened_flow(SharedEnvironment* env)
     {
         std::vector<Int4> background_flow(env->map.size(),Int4({0,0,0,0}));
-        for (int i_task=0 ; i_task < env->task_pool.size() ;i_task++)
+        //for (int i_task=0 ; i_task < env->task_pool.size() ;i_task++)
+        for (auto task: env->task_pool)
         {
-            if (env->task_pool[i_task].idx_next_loc > 0) //task opened
+            if (task.second.idx_next_loc > 0) //task opened
             {
-                int agent = env->task_pool[i_task].agent_assigned;
+                int agent = task.second.agent_assigned;
                 if (trajLNS.trajs[agent].empty())
                     continue;
                 int loc, prev_loc, diff, d;

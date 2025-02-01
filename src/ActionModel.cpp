@@ -12,14 +12,14 @@ std::ostream& operator<<(std::ostream &stream, const Action &action)
     } else if (action == Action::WE) {
         stream << "WE";
     } else {
-        stream << "WA";
+        stream << "W";
     }
 
     return stream;
 }
 
 
-bool ActionModelWithRotate::is_valid(const vector<State>& prev, const vector<Action> & actions, int timestep)
+bool ActionModel::is_valid(const vector<State>& prev, const vector<Action> & actions, int timestep)
 {
     if (prev.size() != actions.size())
     {

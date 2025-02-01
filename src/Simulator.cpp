@@ -18,7 +18,7 @@ vector<State> Simulator::move(vector<Action>& actions)
         }
     }
 
-    if (!model->is_valid(curr_states, actions))
+    if (!model->is_valid(curr_states, actions, timestep))
     {
         //move_valid = false;
         all_valid = false;
@@ -60,31 +60,28 @@ json Simulator::actual_path_to_json() const
             {
                 first = false;
             }
+            path+=action;
 
-            if (action == Action::N)
-            {
-                path+="NO";
-            }
-            else if (action == Action::E)
-            {
-                path+="EA";
-            } 
-            else if (action == Action::S)
-            {
-                path+="SO";
-            }
-            else if (action == Action::WE)
-            {
-                path+="WE";
-            }
-            else if (action == Action::NA)
-            {
-                path+="T";
-            }
-            else
-            {
-                path+="W";
-            }
+            // if (action == Action::FW)
+            // {
+            //     path+="F";
+            // }
+            // else if (action == Action::CR)
+            // {
+            //     path+="R";
+            // } 
+            // else if (action == Action::CCR)
+            // {
+            //     path+="C";
+            // }
+            // else if (action == Action::NA)
+            // {
+            //     path+="T";
+            // }
+            // else
+            // {
+            //     path+="W";
+            // }
         }
         apaths.push_back(path);
     }
@@ -110,31 +107,28 @@ json Simulator::planned_path_to_json() const
             {
                 first = false;
             }
+            path+=action;
 
-            if (action == Action::N)
-            {
-                path+="NO";
-            }
-            else if (action == Action::E)
-            {
-                path+="EA";
-            } 
-            else if (action == Action::S)
-            {
-                path+="SO";
-            }
-            else if (action == Action::WE)
-            {
-                path+="WE";
-            }
-            else if (action == Action::NA)
-            {
-                path+="T";
-            }
-            else
-            {
-                path+="W";
-            }
+            // if (action == Action::FW)
+            // {
+            //     path+="F";
+            // }
+            // else if (action == Action::CR)
+            // {
+            //     path+="R";
+            // } 
+            // else if (action == Action::CCR)
+            // {
+            //     path+="C";
+            // } 
+            // else if (action == Action::NA)
+            // {
+            //     path+="T";
+            // }
+            // else
+            // {
+            //     path+="W";
+            // }
         }  
         ppaths.push_back(path);
     }

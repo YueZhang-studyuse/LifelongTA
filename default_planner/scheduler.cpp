@@ -23,8 +23,8 @@ void schedule_plan(int time_limit, std::vector<int> & proposed_schedule,  Shared
     // // cout<<"schedule plan limit" << time_limit <<endl;
 
     // the default scheduler keep track of all the free agents and unassigned (=free) tasks across timesteps
-    free_agents.insert(env->new_freeagents.begin(), env->new_freeagents.end());
-    free_tasks.insert(env->new_tasks.begin(), env->new_tasks.end());
+    // free_agents.insert(env->new_freeagents.begin(), env->new_freeagents.end());
+    // free_tasks.insert(env->new_tasks.begin(), env->new_tasks.end());
     // proposed_schedule.resize(env->num_of_agents, -1); //default no schedule
 
 
@@ -79,23 +79,23 @@ void schedule_plan(int time_limit, std::vector<int> & proposed_schedule,  Shared
     proposed_schedule.resize(env->num_of_agents, -1);
 
     unordered_set<int>opened_agents;
-    unordered_set<int>opened_tasks;
-    vector<int>agent_id_matches;
-    vector<int>task_id_matches;
+    // unordered_set<int>opened_tasks;
+    vector<int>agent_ids;
+    vector<int>task_ids;
 
     //pre check the opened tasks.
-    for (int i_task=0 ; i_task < env->task_pool.size() ;i_task++)
+    // for (int i_task=0 ; i_task < env->task_pool.size() ;i_task++)
+    for (auto task: env->task_pool)
     {
-        if (env->task_pool[i_task].idx_next_loc > 0) //task opened
-        //if (env->task_pool[i_task].agent_assigned != -1) //agent assigned
+        if (task.second.idx_next_loc > 0) //task opened
         {
-            opened_agents.insert(env->task_pool[i_task].agent_assigned);
-            opened_tasks.insert(i_task);
-            proposed_schedule[env->task_pool[i_task].agent_assigned] = env->curr_task_schedule[env->task_pool[i_task].agent_assigned];
+            opened_agents.insert(task.second.agent_assigned);
+            // opened_tasks.insert(i_task);
+            proposed_schedule[task.second.agent_assigned] = task.first;
         }
         else
         {
-            task_id_matches.push_back(i_task);
+            task_ids.push_back(task.first);
         }
     }
 
@@ -103,12 +103,14 @@ void schedule_plan(int time_limit, std::vector<int> & proposed_schedule,  Shared
     {
         if (opened_agents.find(i) == opened_agents.end())
         {
-            agent_id_matches.push_back(i);
+            agent_ids.push_back(i);
         }
     }
 
-    int num_workers = agent_id_matches.size();
-    int num_tasks = task_id_matches.size();
+    cout<<"num of background agents: "<<opened_agents.size()<<endl;
+
+    int num_workers = agent_ids.size();
+    int num_tasks = task_ids.size();
 
 
 
@@ -137,15 +139,15 @@ void schedule_plan(int time_limit, std::vector<int> & proposed_schedule,  Shared
     for (int j = 0; j < num_tasks; j++)
     {
         dij_goals.clear();
-        dij_goals.insert(env->task_pool[task_id_matches[j]].locations[1]);
+        //dij_goals.insert(env->task_pool[task_id_matches[j]].locations[1]);
         for (int i = 0; i < num_workers; i++)
         {
-            dij_goals.insert(env->curr_states.at(agent_id_matches[i]).location);
+            dij_goals.insert(env->curr_states.at(agent_ids[i]).location);
         }
 
         open.clear();
         closed.clear();
-        int goal_location = env->task_pool[task_id_matches[j]].locations[0];
+        int goal_location = env->task_pool[task_ids[j]].locations[0];
         HNode root(goal_location,0, 0);
         open.push_back(root);
         closed.insert(goal_location);
@@ -213,12 +215,12 @@ void schedule_plan(int time_limit, std::vector<int> & proposed_schedule,  Shared
 
     for (int i = 0; i < num_workers; i++)
     {
-        int start = env->curr_states.at(agent_id_matches[i]).location;
+        int start = env->curr_states.at(agent_ids[i]).location;
         for (int j = 0; j < num_tasks; j++)
         {
             //we assume pick_up + delivery
-            int goal = env->task_pool[task_id_matches[j]].locations[0];
-            int goal2 = env->task_pool[task_id_matches[j]].locations[1];
+            int goal = env->task_pool[task_ids[j]].locations[0];
+            int goal2 = env->task_pool[task_ids[j]].locations[1];
             // cost[i][j] = DefaultPlanner::get_h(env, start, goal) + DefaultPlanner::get_h(env, goal, goal2);
             cost[i][j] = task_heuristics[j][start]+task_heuristics[j][goal2];
             x[i][j] = model.addVar(0.0, 1.0, cost[i][j], GRB_BINARY, "x_" + std::to_string(i) + "_" + std::to_string(j));
@@ -263,8 +265,8 @@ void schedule_plan(int time_limit, std::vector<int> & proposed_schedule,  Shared
                 {  // Check if x[i][j] is 1
                     std::cout << "Worker " << i << " assigned to Task " << j
                                 << " with cost " << cost[i][j] << std::endl;
-                    proposed_schedule[agent_id_matches[i]] = env->task_pool[task_id_matches[j]].task_id;
-                    env->task_pool[task_id_matches[j]].agent_assigned = agent_id_matches[i];
+                    proposed_schedule[agent_ids[i]] = env->task_pool[task_ids[j]].task_id;
+                    env->task_pool[task_ids[j]].agent_assigned = agent_ids[i];
                 }
             }
         }

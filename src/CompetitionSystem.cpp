@@ -38,7 +38,7 @@ void BaseSystem::sync_shared_env()
         }
         //update proposed action to all wait
         proposed_actions.clear();
-        proposed_actions.resize(num_of_agents, Action::W);
+        proposed_actions.resize(num_of_agents, Action::WA);
         //update proposed schedule to previous assignment
         proposed_schedule = env->curr_task_schedule;
         
@@ -223,7 +223,7 @@ void BaseSystem::initialize()
         solution_costs[a] = 0;
     }
 
-    proposed_actions.resize(num_of_agents, Action::W);
+    proposed_actions.resize(num_of_agents, Action::WA);
     proposed_schedule.resize(num_of_agents, -1);
 }
 
