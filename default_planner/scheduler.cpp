@@ -136,81 +136,84 @@ void schedule_plan(int time_limit, std::vector<int> & proposed_schedule,  Shared
     //add locations
     unordered_set<int> dij_goals;
     unordered_set<int> closed;
-    for (int j = 0; j < num_tasks; j++)
+    if (env->curr_timestep > 0)
     {
-        dij_goals.clear();
-        //dij_goals.insert(env->task_pool[task_id_matches[j]].locations[1]);
-        for (int i = 0; i < num_workers; i++)
+        for (int j = 0; j < num_tasks; j++)
         {
-            dij_goals.insert(env->curr_states.at(agent_ids[i]).location);
-        }
-
-        open.clear();
-        closed.clear();
-        int goal_location = env->task_pool[task_ids[j]].locations[0];
-        HNode root(goal_location,0, 0);
-        open.push_back(root);
-        closed.insert(goal_location);
-
-        std::vector<int> neighbors;
-        int  diff, d, cost, op_flow, total_cross, all_vertex_flow,vertex_flow, depth,p_diff, p_d;
-        int next_d1, next_d2, next_d1_loc, next_d2_loc;
-        int temp_op, temp_vertex;
-		while (!open.empty())
-		{
-			HNode curr = open.front();
-			open.pop_front();
-            closed.insert(curr.location);
-            if (dij_goals.find(curr.location) != dij_goals.end())
+            dij_goals.clear();
+            //dij_goals.insert(env->task_pool[task_id_matches[j]].locations[1]);
+            for (int i = 0; i < num_workers; i++)
             {
-                task_heuristics[j][curr.location] = curr.value;
-                dij_goals.erase(curr.location);
-                //cout<<"find goal"<<curr.location<<" "<<dij_goals.size()<<endl;
+                dij_goals.insert(env->curr_states.at(agent_ids[i]).location);
             }
-            if (dij_goals.empty())
-                break;
-			
-			neighbors = global_neighbors.at(curr.location);
-			
-			for (int next : neighbors)
-			{
-				if (closed.find(next) != closed.end())
-                    continue;
+
+            open.clear();
+            closed.clear();
+            int goal_location = env->task_pool[task_ids[j]].locations[0];
+            HNode root(goal_location,0, 0);
+            open.push_back(root);
+            closed.insert(goal_location);
+
+            std::vector<int> neighbors;
+            int  diff, d, cost, op_flow, total_cross, all_vertex_flow,vertex_flow, depth,p_diff, p_d;
+            int next_d1, next_d2, next_d1_loc, next_d2_loc;
+            int temp_op, temp_vertex;
+            while (!open.empty())
+            {
+                HNode curr = open.front();
+                open.pop_front();
+                closed.insert(curr.location);
+                if (dij_goals.find(curr.location) != dij_goals.end())
+                {
+                    task_heuristics[j][curr.location] = curr.value;
+                    dij_goals.erase(curr.location);
+                    //cout<<"find goal"<<curr.location<<" "<<dij_goals.size()<<endl;
+                }
+                if (dij_goals.empty())
+                    break;
                 
-                cost = curr.value + 1;
-                op_flow = 0;
-                all_vertex_flow = 0;
-                diff = curr.location-next;
-                d = get_d(diff,env);
-                temp_op = ( (background_flow[curr.location].d[d]+1) * background_flow[next].d[(d+2)%4]);
-                temp_vertex = 1;
-                for (int j=0; j<4; j++)
+                neighbors = global_neighbors.at(curr.location);
+                
+                for (int next : neighbors)
                 {
-                    temp_vertex += background_flow[next].d[j];                
-                }
-                op_flow += temp_op;
-                all_vertex_flow+= (temp_vertex-1) /2;
-
-                cost = cost + op_flow + all_vertex_flow;
-
-                if (all_nodes.find(next) != all_nodes.end())
-                {
-                    HNode* old = all_nodes[next];
-                    if (cost < old->value)
+                    if (closed.find(next) != closed.end())
+                        continue;
+                    
+                    cost = curr.value + 1;
+                    op_flow = 0;
+                    all_vertex_flow = 0;
+                    diff = curr.location-next;
+                    d = get_d(diff,env);
+                    temp_op = ( (background_flow[curr.location].d[d]+1) * background_flow[next].d[(d+2)%4]);
+                    temp_vertex = 1;
+                    for (int j=0; j<4; j++)
                     {
-                        old->value = cost;
+                        temp_vertex += background_flow[next].d[j];                
                     }
+                    op_flow += temp_op;
+                    all_vertex_flow+= (temp_vertex-1) /2;
+
+                    cost = cost + op_flow + all_vertex_flow;
+
+                    if (all_nodes.find(next) != all_nodes.end())
+                    {
+                        HNode* old = all_nodes[next];
+                        if (cost < old->value)
+                        {
+                            old->value = cost;
+                        }
+                    }
+                    else
+                    {
+                        HNode next_node(next,0, cost);
+                        open.push_back(next_node);
+                        all_nodes[next] = &next_node;
+                    }
+                    
                 }
-                else
-                {
-                    HNode next_node(next,0, cost);
-                    open.push_back(next_node);
-                    all_nodes[next] = &next_node;
-                }
-				
-			}
-		}
-        all_nodes.clear();
+            }
+            all_nodes.clear();
+        }
     }
 
     for (int i = 0; i < num_workers; i++)
@@ -221,8 +224,10 @@ void schedule_plan(int time_limit, std::vector<int> & proposed_schedule,  Shared
             //we assume pick_up + delivery
             int goal = env->task_pool[task_ids[j]].locations[0];
             int goal2 = env->task_pool[task_ids[j]].locations[1];
-            // cost[i][j] = DefaultPlanner::get_h(env, start, goal) + DefaultPlanner::get_h(env, goal, goal2);
-            cost[i][j] = task_heuristics[j][start]+task_heuristics[j][goal2];
+            if (env->curr_timestep == 0)
+                cost[i][j] = DefaultPlanner::get_h(env, start, goal) + DefaultPlanner::get_h(env, goal, goal2);
+            else
+                cost[i][j] = task_heuristics[j][start]+task_heuristics[j][goal2];
             x[i][j] = model.addVar(0.0, 1.0, cost[i][j], GRB_BINARY, "x_" + std::to_string(i) + "_" + std::to_string(j));
             objective += cost[i][j] * x[i][j];
         }
