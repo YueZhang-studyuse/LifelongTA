@@ -1,0 +1,8 @@
+{
+    "mapFile": "maps/warehouse-10-20-10-2-1.map",
+    "agentFile": "agents/warehouseTest_600.agents",
+    "teamSize": 600,
+    "taskFile": "tasks/warehouseTest.tasks",
+    "numTasksReveal": 1.5,
+    "version": "2024 LoRR"
+}

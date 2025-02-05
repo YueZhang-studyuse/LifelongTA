@@ -1,0 +1,8 @@
+{
+    "mapFile": "maps/ht_mansion_n.map",
+    "agentFile": "agents/gameTest_600.agents",
+    "teamSize": 600,
+    "taskFile": "tasks/gameTest.tasks",
+    "numTasksReveal": 1.5,
+    "version": "2024 LoRR"
+}
