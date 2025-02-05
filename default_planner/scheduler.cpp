@@ -141,7 +141,7 @@ void schedule_plan(int time_limit, std::vector<int> & proposed_schedule,  Shared
         for (int j = 0; j < num_tasks; j++)
         {
             dij_goals.clear();
-            //dij_goals.insert(env->task_pool[task_id_matches[j]].locations[1]);
+            dij_goals.insert(env->task_pool[task_ids[j]].locations[1]);
             for (int i = 0; i < num_workers; i++)
             {
                 dij_goals.insert(env->curr_states.at(agent_ids[i]).location);
