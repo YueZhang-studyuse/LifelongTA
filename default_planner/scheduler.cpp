@@ -362,6 +362,7 @@ void schedule_plan(int time_limit, std::vector<int> & proposed_schedule,  Shared
     unordered_set<int> closed;
     unordered_map<int,list<int>> task_loc_ids;
     int goal_reach_cnt;
+    unordered_map<int,int> task_id;
     for (int id: flexible_task_ids)
     {
         task_loc_ids[env->task_pool[id].locations[0]].push_back(id);
@@ -392,6 +393,7 @@ void schedule_plan(int time_limit, std::vector<int> & proposed_schedule,  Shared
                 for (int t_id: task_loc_ids[curr.location])
                 {
                     agent_task_heuristic[id][t_id] = curr.value;
+                    task_id[t_id] = 0;
                     goal_reach_cnt++;
                     if (env->task_pool[t_id].agent_assigned < 0 && env->curr_task_schedule[id] < 0) //no assignment yet
                     {
@@ -448,13 +450,85 @@ void schedule_plan(int time_limit, std::vector<int> & proposed_schedule,  Shared
         all_nodes.clear();
     }
 
+    //run a* from task pick up to task delivery
+    for (auto task: task_id)
+    {
+        int id = task.first;
+        open.clear();
+        closed.clear();
+        goal_reach_cnt = 0;
+        int start = env->task_pool[id].locations[0];
+        int goal = env->task_pool[id].locations[1];
+        HNode root(start,0, DefaultPlanner::get_h(env, start, goal));
+        open.push_back(root);
+        closed.insert(start);
+
+        std::vector<int> neighbors;
+        int  diff, d, cost, op_flow, total_cross, all_vertex_flow,vertex_flow, depth,p_diff, p_d;
+        int next_d1, next_d2, next_d1_loc, next_d2_loc;
+        int temp_op, temp_vertex;
+        while (!open.empty())
+        {
+            HNode curr = open.front();
+            open.pop_front();
+            closed.insert(curr.location);
+            
+            if (curr.location == goal)
+            {
+                task_id[id] = curr.value;
+            }
+            
+            neighbors = global_neighbors.at(curr.location);
+            
+            for (int next : neighbors)
+            {
+                if (closed.find(next) != closed.end())
+                    continue;
+                
+                cost = curr.value + 1;
+                op_flow = 0;
+                all_vertex_flow = 0;
+                diff = curr.location-next;
+                d = get_d(diff,env);
+                temp_op = ( (background_flow[curr.location].d[d]+1) * background_flow[next].d[(d+2)%4]);
+                temp_vertex = 1;
+                for (int j=0; j<4; j++)
+                {
+                    temp_vertex += background_flow[next].d[j];                
+                }
+                op_flow += temp_op;
+                all_vertex_flow+= (temp_vertex-1) /2;
+
+                cost = cost + op_flow + all_vertex_flow;
+                cost += DefaultPlanner::get_h(env, next, goal);
+
+                if (all_nodes.find(next) != all_nodes.end())
+                {
+                    HNode* old = all_nodes[next];
+                    if (cost < old->value)
+                    {
+                        old->value = cost;
+                    }
+                }
+                else
+                {
+                    HNode next_node(next,0, cost);
+                    open.push_back(next_node);
+                    all_nodes[next] = &next_node;
+                }
+                
+            }
+        }
+        all_nodes.clear();
+    }
+
     for (int i = 0; i < num_workers; i++)
     {
         for (int j = 0; j < num_tasks; j++)
         {
             if (agent_task_heuristic[flexible_agent_ids[i]].find(flexible_task_ids[j]) == agent_task_heuristic[flexible_agent_ids[i]].end())
                 continue;
-            cost[i][j] = agent_task_heuristic[flexible_agent_ids[i]][flexible_task_ids[j]];
+            cost[i][j] = agent_task_heuristic[flexible_agent_ids[i]][flexible_task_ids[j]] + task_id[flexible_task_ids[j]];
             x[i][j] = model.addVar(0.0, 1.0, cost[i][j], GRB_BINARY, "x_" + std::to_string(i) + "_" + std::to_string(j));
             objective += cost[i][j] * x[i][j];
 
