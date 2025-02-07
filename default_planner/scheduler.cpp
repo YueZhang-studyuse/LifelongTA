@@ -314,17 +314,16 @@ void schedule_plan(int time_limit, std::vector<int> & proposed_schedule,  Shared
     vector<int>flexible_agent_ids(env->new_freeagents); //storing the agents not doing a opened task
     vector<int>flexible_task_ids(env->new_tasks); //storing the tasks we consider to swap/assign
 
-    for (int i = 0; i < env->num_of_agents; i++)
+    for (auto task: env->task_pool)
     {
-        int t_id = env->curr_task_schedule[i];
-        if (t_id >= 0 && env->task_pool[t_id].idx_next_loc == 0) //task assigned but not opened
+        if (task.second.idx_next_loc > 0) //task opened
         {
-            flexible_agent_ids.push_back(i);
-            flexible_task_ids.push_back(t_id);
+            proposed_schedule[task.second.agent_assigned] = task.first;
         }
-        else if (t_id >= 0) //task opened
+        else
         {
-            proposed_schedule[i] = t_id;
+            flexible_agent_ids.push_back(task.second.agent_assigned);
+            flexible_task_ids.push_back(task.first);
         }
     }
 
