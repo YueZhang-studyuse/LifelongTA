@@ -1,9 +1,5 @@
 #include "scheduler.h"
 #include "gurobi_c++.h"
-#include <lemon/list_graph.h>
-#include <lemon/network_simplex.h>
-
-using namespace lemon;
 
 namespace DefaultPlanner{
 
@@ -927,7 +923,7 @@ void schedule_plan_lemon(int time_limit, std::vector<int> & proposed_schedule,  
     int num_workers = flexible_agent_ids.size();
     int num_tasks = flexible_task_ids.size();
 
-    if (maximum_edges > num_tasks)
+    //if (maximum_edges > num_tasks)
         maximum_edges = num_tasks;
 
     //computing heuristics
@@ -1100,6 +1096,8 @@ void schedule_plan_lemon(int time_limit, std::vector<int> & proposed_schedule,  
     ns.upperMap(capacity);
     ns.supplyMap(supply);
     ns.flowMap(flow); // Use the initial flow (warm start)
+
+    printDIMACS(g, source, sink, workers, tasks, capacity, cost);
     
     if (ns.run() == NetworkSimplex<ListDigraph>::OPTIMAL) 
     {
@@ -1135,4 +1133,47 @@ void schedule_plan_lemon(int time_limit, std::vector<int> & proposed_schedule,  
     }
 
 }
+void printDIMACS(ListDigraph& g, 
+                 ListDigraph::Node source, 
+                 ListDigraph::Node sink, 
+                 vector<ListDigraph::Node>& workers, 
+                 vector<ListDigraph::Node>& tasks, 
+                 ListDigraph::ArcMap<int>& capacity, 
+                 ListDigraph::ArcMap<double>& cost) 
+{
+    int num_workers = workers.size();
+    int num_tasks = tasks.size();
+    int num_nodes = 2 + num_workers + num_tasks; // source, sink, workers, tasks
+    int num_arcs = num_workers + num_tasks + (num_workers * num_tasks); // source→workers + tasks→sink + workers→tasks
+
+    // Print problem line
+    cout << "p min " << num_nodes << " " << num_arcs << endl;
+
+    // Print node descriptors
+    cout << "n 1 " << num_workers << "   c Source (supplies workers)" << endl;
+    cout << "n " << num_nodes << " -" << num_workers << "   c Sink (absorbs workers)" << endl;
+
+    // Print arcs (Source → Workers)
+    for (int i = 0; i < num_workers; ++i) {
+        cout << "a 1 " << (i + 2) << " 0 1 0   c Source to Worker " << (i + 1) << endl;
+    }
+
+    // Print arcs (Workers → Tasks)
+    for (int i = 0; i < num_workers; ++i) {
+        for (int j = 0; j < num_tasks; ++j) {
+            ListDigraph::Arc a = findArc(g, workers[i], tasks[j]);
+            if (a == INVALID) continue; // Skip if no valid edge
+
+            cout << "a " << (i + 2) << " " << (num_workers + j + 2) << " 0 " 
+                 << capacity[a] << " " << cost[a] 
+                 << "   c Worker " << (i + 1) << " to Task " << (j + 1) << endl;
+        }
+    }
+
+    // Print arcs (Tasks → Sink)
+    for (int j = 0; j < num_tasks; ++j) {
+        cout << "a " << (num_workers + j + 2) << " " << num_nodes << " 0 1 0   c Task " << (j + 1) << " to Sink" << endl;
+    }
+}
+
 }
