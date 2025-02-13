@@ -46,9 +46,14 @@ find_package( Boost 1.49.0 REQUIRED COMPONENTS program_options system filesystem
 
 include_directories( ${Boost_INCLUDE_DIRS} )
 
+# find gurobi
 find_package(GUROBI REQUIRED)
 
 include_directories(${GUROBI_INCLUDE_DIRS})
+
+# find lemon
+find_package(LEMON REQUIRED)
+include_directories(${LEMON_INCLUDE_DIRS})
 
 
 IF(PYTHON)
@@ -86,7 +91,7 @@ ELSE()
     message(${GUROBI_CXX_LIBRARY})
 
     add_executable(lifelong ${SOURCES} )
-    target_link_libraries(lifelong ${Boost_LIBRARIES} ${GUROBI_CXX_LIBRARY} ${GUROBI_LIBRARY})
+    target_link_libraries(lifelong ${Boost_LIBRARIES} ${GUROBI_CXX_LIBRARY} ${GUROBI_LIBRARY} ${LEMON_LIBRARIES})
     target_compile_definitions(lifelong PRIVATE PYTHON=${PYTHON_FLAG})
 ENDIF()
 

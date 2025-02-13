@@ -3,6 +3,6 @@
     "agentFile": "agents/sortationTest_6000.agents",
     "teamSize": 6000,
     "taskFile": "tasks/sortationTest.tasks",
-    "numTasksReveal": 2,
+    "numTasksReveal": 1.5,
     "version": "2024 LoRR"
 }

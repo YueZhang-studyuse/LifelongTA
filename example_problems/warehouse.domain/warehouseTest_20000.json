@@ -3,6 +3,6 @@
     "agentFile": "agents/warehouseTest_20000.agents",
     "teamSize": 20000,
     "taskFile": "tasks/warehouseTest.tasks",
-    "numTasksReveal": 2,
+    "numTasksReveal": 1.5,
     "version": "2024 LoRR"
 }
