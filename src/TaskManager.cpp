@@ -143,12 +143,12 @@ list<int> TaskManager::check_finished_tasks(vector<State>& states, int timestep)
                 finished_tasks[task->agent_assigned].emplace_back(task);
                 num_of_task_finish++;
                 new_freeagents.push_back(k); // record the new free agent
-                logger->log_info("Agent " + std::to_string(task->agent_assigned) + " finishes task " + std::to_string(task->task_id), timestep);
+                //logger->log_info("Agent " + std::to_string(task->agent_assigned) + " finishes task " + std::to_string(task->task_id), timestep);
                 logger->flush();
             }
             else if (task->idx_next_loc>0)
             {
-                logger->log_info("Agent " + std::to_string(task->agent_assigned) + " opens task " + std::to_string(task->task_id), timestep);
+                //logger->log_info("Agent " + std::to_string(task->agent_assigned) + " opens task " + std::to_string(task->task_id), timestep);
             }
             events.push_back(make_tuple(timestep,k,task->task_id,task->idx_next_loc));
         }
@@ -192,7 +192,7 @@ void TaskManager::reveal_tasks(int timestep)
         ongoing_tasks[task->task_id] = task;
         all_tasks.push_back(task);
         new_tasks.push_back(task->task_id);         // record the new tasks
-        logger->log_info("Task " + std::to_string(task_id) + " is revealed");
+        //logger->log_info("Task " + std::to_string(task_id) + " is revealed");
         task_id++;
     }
 }

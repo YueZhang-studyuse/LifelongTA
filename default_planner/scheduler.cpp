@@ -893,7 +893,10 @@ unordered_map<int,unordered_map<int,int>> compute_heuristics(SharedEnvironment* 
 
 void schedule_plan_lemon(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Int4> background_flow)
 {
-    int maximum_edges = 100;
+
+    auto start_time = std::chrono::high_resolution_clock::now();
+
+    int maximum_edges = 20;
 
     proposed_schedule.resize(env->num_of_agents, -1);
 
@@ -1022,8 +1025,9 @@ void schedule_plan_lemon(int time_limit, std::vector<int> & proposed_schedule,  
         all_nodes.clear();
     }
 
+    cout<<"Dijkstra time: "<<std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - start_time).count()<<endl;
     // Start timing
-    auto start_time = std::chrono::high_resolution_clock::now();
+    start_time = std::chrono::high_resolution_clock::now();
     
     // Create the graph
     ListDigraph g;
@@ -1097,7 +1101,7 @@ void schedule_plan_lemon(int time_limit, std::vector<int> & proposed_schedule,  
     ns.supplyMap(supply);
     ns.flowMap(flow); // Use the initial flow (warm start)
 
-    printDIMACS(g, source, sink, workers, tasks, capacity, cost);
+    //printDIMACS(g, source, sink, workers, tasks, capacity, cost);
     
     if (ns.run() == NetworkSimplex<ListDigraph>::OPTIMAL) 
     {

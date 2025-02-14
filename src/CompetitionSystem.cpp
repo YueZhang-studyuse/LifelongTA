@@ -75,7 +75,8 @@ void BaseSystem::plan(int & timeout_timesteps)
 
     started = true;
 
-    while (timestep + timeout_timesteps < simulation_time){
+    while (timestep < simulation_time)
+    {
 
         if (future.wait_for(std::chrono::milliseconds(plan_time_limit)) == std::future_status::ready)
             {
@@ -152,18 +153,19 @@ void BaseSystem::simulate(int simulation_time)
 
         auto end = std::chrono::steady_clock::now();
 
-        for (int i = 0 ; i< timeout_timesteps; i ++){
-            simulator.move(all_wait_actions);
-            for (int a = 0; a < num_of_agents; a++)
-                {
-                    if (!env->goal_locations[a].empty())
-                        solution_costs[a]++;
-                }
-        }
+        // for (int i = 0 ; i< timeout_timesteps; i ++){
+        //     simulator.move(all_wait_actions);
+        //     for (int a = 0; a < num_of_agents; a++)
+        //         {
+        //             if (!env->goal_locations[a].empty())
+        //                 solution_costs[a]++;
+        //         }
+        // }
 
         total_timetous+=timeout_timesteps;
 
-        if (simulator.get_curr_timestep() >= simulation_time){
+        if (simulator.get_curr_timestep() >= simulation_time)
+        {
 
             auto diff = end-start;
             planner_times.push_back(std::chrono::duration<double>(diff).count());
