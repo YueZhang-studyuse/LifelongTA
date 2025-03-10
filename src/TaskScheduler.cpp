@@ -37,7 +37,8 @@ void TaskScheduler::plan(int time_limit, std::vector<int> & proposed_schedule)
     //DefaultPlanner::schedule_plan(limit, proposed_schedule, env, background_flow);
     //DefaultPlanner::schedule_plan_full(limit, proposed_schedule, env, background_flow);
     //DefaultPlanner::schedule_plan_parallel(limit, proposed_schedule, env, background_flow);
-    DefaultPlanner::schedule_plan_lemon(limit, proposed_schedule, env, background_flow);
+    // DefaultPlanner::schedule_plan_lemon(limit, proposed_schedule, env, background_flow);
+    DefaultPlanner::schedule_plan_cost(limit, proposed_schedule, env, background_flow);
 }
 
 void TaskScheduler::set_flow(std::vector<DefaultPlanner::Int4> flow)

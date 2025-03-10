@@ -65,7 +65,8 @@ namespace DefaultPlanner{
      * 
      * The initialization function initializes the default planner data structures and heuristics tables.
      */
-    void initialize(int preprocess_time_limit, SharedEnvironment* env){
+    void initialize(int preprocess_time_limit, SharedEnvironment* env)
+    {
             //initialise all required data structures
             assert(env->num_of_agents != 0);
             p.resize(env->num_of_agents);
@@ -112,7 +113,8 @@ namespace DefaultPlanner{
      * Finally, it computes the actions for the agents using PIBT that follows the guide path heuristics and returns the actions.
      * Note that the default planner ignores the turning action costs, and post-processes turning actions as additional delays on top of original plan.
      */
-    void plan(int time_limit,vector<Action> & actions, SharedEnvironment* env){
+    void plan(int time_limit,vector<Action> & actions, SharedEnvironment* env)
+    {
 
         // calculate the time planner should stop optimsing traffic flows and return the plan.
         TimePoint start_time = std::chrono::steady_clock::now();
@@ -150,14 +152,14 @@ namespace DefaultPlanner{
                         }
                 }
             }
-            
-
             // set the goal location of each agent
-            if (env->goal_locations[i].empty()){
+            if (env->goal_locations[i].empty())
+            {
                 trajLNS.tasks[i] = dummy_goals.at(i);
                 p[i] = p_copy[i];
             }
-            else{
+            else
+            {
                 trajLNS.tasks[i] = env->goal_locations[i].front().first;
             }
 
