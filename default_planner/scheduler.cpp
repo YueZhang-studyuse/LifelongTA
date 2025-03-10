@@ -1350,7 +1350,7 @@ void schedule_plan_cost(int time_limit, std::vector<int> & proposed_schedule,  S
     int num_workers = flexible_agent_ids.size();
     int num_tasks = flexible_task_ids.size();
 
-    maximum_edges = num_tasks;
+    int maximum_edges = num_tasks;
 
     //computing heuristics
     vector<unordered_map<int,int>> agent_task_heuristic;
