@@ -1546,4 +1546,128 @@ void schedule_plan_cost(int time_limit, std::vector<int> & proposed_schedule,  S
     }
 
 }
+
+void schedule_plan_cost_greedy(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env)
+{
+
+    auto start_time = std::chrono::high_resolution_clock::now();
+
+    //int maximum_edges = 20;
+
+    proposed_schedule.resize(env->num_of_agents, -1);
+
+    vector<int>flexible_agent_ids(env->new_freeagents); //storing the agents not doing a opened task
+    vector<int>flexible_task_ids; //storing the tasks we consider to swap/assign
+
+    for (auto task: env->task_pool)
+    {
+        if (task.second.idx_next_loc > 0) //task opened
+        {
+            proposed_schedule[task.second.agent_assigned] = task.first;
+        }
+        else
+        {
+            flexible_task_ids.push_back(task.first);
+            if (task.second.agent_assigned != -1)
+                flexible_agent_ids.push_back(task.second.agent_assigned);
+            
+        }
+    }
+
+    //prepare for matching
+
+    cout<<"num of flexible agents: "<<flexible_agent_ids.size()<<endl;
+    cout<<"num of flexible tasks: "<<flexible_task_ids.size()<<endl;
+
+    int num_workers = flexible_agent_ids.size();
+    int num_tasks = flexible_task_ids.size();
+
+    int maximum_edges = 1;
+
+    //computing heuristics
+    vector<unordered_map<int,int>> agent_task_heuristic;
+    agent_task_heuristic.resize(env->num_of_agents);
+    std::deque<HNode> open;
+    std::unordered_map<int,HNode*> all_nodes;
+    unordered_set<int> closed;
+    unordered_map<int,list<int>> task_loc_ids;
+    int goal_reach_cnt;
+    unordered_map<int,int> task_id;
+    for (int id: flexible_task_ids)
+    {
+        task_loc_ids[env->task_pool[id].locations[0]].push_back(id);
+    }
+
+    for (int id: flexible_agent_ids)
+    {
+        open.clear();
+        closed.clear();
+        goal_reach_cnt = 0;
+        int goal_location = env->curr_states[id].location;
+        HNode root(goal_location,0, 0);
+        open.push_back(root);
+        closed.insert(goal_location);
+
+        std::vector<int> neighbors;
+        int  diff, d, cost, op_flow, total_cross, all_vertex_flow,vertex_flow, depth,p_diff, p_d;
+        int next_d1, next_d2, next_d1_loc, next_d2_loc;
+        int temp_op, temp_vertex;
+
+        while (!open.empty())
+        {
+            HNode curr = open.front();
+            open.pop_front();
+            closed.insert(curr.location);
+            if (task_loc_ids.find(curr.location)!= task_loc_ids.end())
+            {
+                for (int t_id: task_loc_ids[curr.location])
+                {
+                    agent_task_heuristic[id][t_id] = curr.value;
+                    task_id[t_id] = 0;
+                    goal_reach_cnt++;
+                    if (env->task_pool[t_id].agent_assigned < 0 && env->curr_task_schedule[id] < 0) //no assignment yet
+                    {
+                        //set an assignment greedily
+                        env->curr_task_schedule[id] = t_id;
+                        env->task_pool[t_id].agent_assigned = id;
+                        proposed_schedule[id] = t_id;
+                    }
+                }
+            }
+
+            if (env->curr_task_schedule[id] >= 0 && goal_reach_cnt >= maximum_edges && agent_task_heuristic[id].find(env->curr_task_schedule[id]) != agent_task_heuristic[id].end())
+                break;
+            
+            neighbors = global_neighbors.at(curr.location);
+            
+            for (int next : neighbors)
+            {
+                if (closed.find(next) != closed.end())
+                    continue;
+                
+                cost = curr.value + 1;
+
+                if (all_nodes.find(next) != all_nodes.end())
+                {
+                    HNode* old = all_nodes[next];
+                    if (cost < old->value)
+                    {
+                        old->value = cost;
+                    }
+                }
+                else
+                {
+                    HNode next_node(next,0, cost);
+                    open.push_back(next_node);
+                    all_nodes[next] = &next_node;
+                }
+                
+            }
+        }
+        all_nodes.clear();
+    }
+
+    cout<<"Dijkstra time: "<<std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - start_time).count()<<endl;
+
+}
 }

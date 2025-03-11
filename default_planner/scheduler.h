@@ -25,6 +25,7 @@ unordered_map<int,unordered_map<int,int>> compute_heuristics(SharedEnvironment* 
 void printDIMACS(ListDigraph& g, ListDigraph::Node source, ListDigraph::Node sink, vector<ListDigraph::Node>& workers, vector<ListDigraph::Node>& tasks, ListDigraph::ArcMap<int>& capacity, ListDigraph::ArcMap<double>& cost);
 void schedule_plan_greedy(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Int4> background_flow);
 void schedule_plan_cost(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env);
+void schedule_plan_cost_greedy(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env);
 
 }
 
