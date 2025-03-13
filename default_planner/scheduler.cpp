@@ -1565,7 +1565,10 @@ void schedule_plan_cost_greedy(int time_limit, std::vector<int> & proposed_sched
         {
             flexible_task_ids.push_back(task.first);
             if (task.second.agent_assigned != -1)
+            {
                 flexible_agent_ids.push_back(task.second.agent_assigned);
+                proposed_schedule[task.second.agent_assigned] = task.first;
+            }
             
         }
     }
