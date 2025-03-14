@@ -1567,7 +1567,7 @@ void schedule_plan_cost_greedy(int time_limit, std::vector<int> & proposed_sched
             if (task.second.agent_assigned != -1)
             {
                 flexible_agent_ids.push_back(task.second.agent_assigned);
-                proposed_schedule[task.second.agent_assigned] = task.first;
+                task.second.agent_assigned = -1;
             }
             
         }
@@ -1584,7 +1584,7 @@ void schedule_plan_cost_greedy(int time_limit, std::vector<int> & proposed_sched
     {
         for (int i:flexible_task_ids)
         {
-            if (temp_assigned.find(i) != temp_assigned.end())
+            if (env->task_pool[i].agent_assigned != -1)
                 continue;
             if (proposed_schedule[agent_id] < 0) //agent does not have an assignment yet
             {
@@ -1603,7 +1603,6 @@ void schedule_plan_cost_greedy(int time_limit, std::vector<int> & proposed_sched
         }
         env->task_pool[proposed_schedule[agent_id]].agent_assigned = agent_id;
         env->curr_task_schedule[agent_id] = proposed_schedule[agent_id];
-        temp_assigned.insert(proposed_schedule[agent_id]);
     }
 }
 
