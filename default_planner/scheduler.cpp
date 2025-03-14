@@ -1348,91 +1348,7 @@ void schedule_plan_cost(int time_limit, std::vector<int> & proposed_schedule,  S
     int num_workers = flexible_agent_ids.size();
     int num_tasks = flexible_task_ids.size();
 
-    int maximum_edges = num_tasks;
 
-    //computing heuristics
-    vector<unordered_map<int,int>> agent_task_heuristic;
-    agent_task_heuristic.resize(env->num_of_agents);
-    std::deque<HNode> open;
-    std::unordered_map<int,HNode*> all_nodes;
-    unordered_set<int> closed;
-    unordered_map<int,list<int>> task_loc_ids;
-    int goal_reach_cnt;
-    unordered_map<int,int> task_id;
-    for (int id: flexible_task_ids)
-    {
-        task_loc_ids[env->task_pool[id].locations[0]].push_back(id);
-    }
-
-    for (int id: flexible_agent_ids)
-    {
-        open.clear();
-        closed.clear();
-        goal_reach_cnt = 0;
-        int goal_location = env->curr_states[id].location;
-        HNode root(goal_location,0, 0);
-        open.push_back(root);
-        closed.insert(goal_location);
-
-        std::vector<int> neighbors;
-        int  diff, d, cost, op_flow, total_cross, all_vertex_flow,vertex_flow, depth,p_diff, p_d;
-        int next_d1, next_d2, next_d1_loc, next_d2_loc;
-        int temp_op, temp_vertex;
-
-        while (!open.empty())
-        {
-            HNode curr = open.front();
-            open.pop_front();
-            closed.insert(curr.location);
-            if (task_loc_ids.find(curr.location)!= task_loc_ids.end())
-            {
-                for (int t_id: task_loc_ids[curr.location])
-                {
-                    agent_task_heuristic[id][t_id] = curr.value;
-                    task_id[t_id] = 0;
-                    goal_reach_cnt++;
-                    if (env->task_pool[t_id].agent_assigned < 0 && env->curr_task_schedule[id] < 0) //no assignment yet
-                    {
-                        //set an assignment greedily
-                        env->curr_task_schedule[id] = t_id;
-                        env->task_pool[t_id].agent_assigned = id;
-                    }
-                }
-            }
-
-            if (env->curr_task_schedule[id] >= 0 && goal_reach_cnt >= maximum_edges && agent_task_heuristic[id].find(env->curr_task_schedule[id]) != agent_task_heuristic[id].end())
-                break;
-            
-            neighbors = global_neighbors.at(curr.location);
-            
-            for (int next : neighbors)
-            {
-                if (closed.find(next) != closed.end())
-                    continue;
-                
-                cost = curr.value + 1;
-
-                if (all_nodes.find(next) != all_nodes.end())
-                {
-                    HNode* old = all_nodes[next];
-                    if (cost < old->value)
-                    {
-                        old->value = cost;
-                    }
-                }
-                else
-                {
-                    HNode next_node(next,0, cost);
-                    open.push_back(next_node);
-                    all_nodes[next] = &next_node;
-                }
-                
-            }
-        }
-        all_nodes.clear();
-    }
-
-    cout<<"Dijkstra time: "<<std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - start_time).count()<<endl;
     // Start timing
     start_time = std::chrono::high_resolution_clock::now();
     
@@ -1483,10 +1399,12 @@ void schedule_plan_cost(int time_limit, std::vector<int> & proposed_schedule,  S
     {
         for (int j = 0; j < num_tasks; ++j) 
         {
-            if (agent_task_heuristic[flexible_agent_ids[i]].find(flexible_task_ids[j]) == agent_task_heuristic[flexible_agent_ids[i]].end())
-                continue;
             ListDigraph::Arc a = g.addArc(workers[i], tasks[j]);
-            cost[a] = agent_task_heuristic[flexible_agent_ids[i]][flexible_task_ids[j]]; // Assign the cost from the heuristic
+            int agent_id = flexible_agent_ids[i];
+            int task_id = flexible_task_ids[j];
+            int h = DefaultPlanner::get_h(env,env->curr_states[agent_id].location,env->task_pool[task_id].locations[0]);
+            h+= DefaultPlanner::get_h(env,env->task_pool[task_id].locations[1],env->task_pool[task_id].locations[0]);
+            cost[a] = h; // Assign the cost from the heuristic
             capacity[a] = 1; // Each worker can be assigned to at most one task
             edges[i][j] = a;
 
