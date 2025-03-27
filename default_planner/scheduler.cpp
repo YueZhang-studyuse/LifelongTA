@@ -1340,6 +1340,22 @@ void schedule_plan_cost(int time_limit, std::vector<int> & proposed_schedule,  S
         }
     }
 
+    // for (auto task: env->task_pool)
+    // {
+    //     //if (task.second.idx_next_loc > 0) //task opened
+    //     if (task.second.agent_assigned != -1)
+    //     {
+    //         proposed_schedule[task.second.agent_assigned] = task.first;
+    //     }
+    //     else
+    //     {
+    //         flexible_task_ids.push_back(task.first);
+    //         // if (task.second.agent_assigned != -1)
+    //         //     flexible_agent_ids.push_back(task.second.agent_assigned);
+            
+    //     }
+    // }
+
     //prepare for matching
 
     cout<<"num of flexible agents: "<<flexible_agent_ids.size()<<endl;
@@ -1490,6 +1506,21 @@ void schedule_plan_cost_greedy(int time_limit, std::vector<int> & proposed_sched
             
         }
     }
+    // for (auto task: env->task_pool)
+    // {
+    //     //if (task.second.idx_next_loc > 0) //task opened
+    //     if (task.second.agent_assigned != -1)
+    //     {
+    //         proposed_schedule[task.second.agent_assigned] = task.first;
+    //     }
+    //     else
+    //     {
+    //         flexible_task_ids.push_back(task.first);
+    //         // if (task.second.agent_assigned != -1)
+    //         //     flexible_agent_ids.push_back(task.second.agent_assigned);
+            
+    //     }
+    // }
 
     //prepare for matching
 
@@ -1534,11 +1565,6 @@ bool isTaskNode(ListDigraph::Node node, ListDigraph& g, ListDigraph::Node sink)
     }
     return false;
 }
-struct NodeHasher {
-    std::size_t operator()(const lemon::ListDigraph::Node &node) const {
-        return boost::hash<int>()(lemon::ListDigraphBase::id(node));
-    }
-};
 void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Int4> background_flow)
 {
 
@@ -1607,13 +1633,13 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
         cost[a] = 0; // No cost for assigning workers
     }
 
-    unordered_map<ListDigraph::Node, int, NodeHasher> node_to_task_id;
+    unordered_map<int, int> node_to_task_id;
 
     for (auto task: task_loc_ids)
     {
         int loc = task.first;
         ListDigraph::Arc a = g.addArc(map_nodes[loc], sink);
-        node_to_task_id[map_nodes[loc]] = loc;
+        node_to_task_id[lemon::ListDigraphBase::id(map_nodes[loc])] = loc;
         capacity[a] = task.second.size();
         cost[a] = 0;
     }
@@ -1641,8 +1667,6 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
     ns.upperMap(capacity);
     ns.supplyMap(supply);
     ns.flowMap(flow); // Use the initial flow (warm start)
-
-    //printDIMACS(g, source, sink, workers, tasks, capacity, cost);
     
     if (ns.run() == NetworkSimplex<ListDigraph>::OPTIMAL) 
     {
@@ -1674,7 +1698,7 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
             // Now `current` should be a task node
             if (isTaskNode(current, g, sink)) 
             {
-                int task_loc = node_to_task_id[current];
+                int task_loc = node_to_task_id[lemon::ListDigraphBase::id(current)];
                 int task_id = task_loc_ids[task_loc].front();
                 task_loc_ids[task_loc].pop_front();
                 // node_to_task_id[current].pop_front();
