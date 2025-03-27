@@ -26,6 +26,8 @@ void printDIMACS(ListDigraph& g, ListDigraph::Node source, ListDigraph::Node sin
 void schedule_plan_greedy(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Int4> background_flow);
 void schedule_plan_cost(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env);
 void schedule_plan_cost_greedy(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env);
+bool isTaskNode(ListDigraph::Node node, ListDigraph& g, ListDigraph::Node sink);
+void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Int4> background_flow);
 
 }
 
