@@ -1672,9 +1672,6 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
     
     if (ns.run() == NetworkSimplex<ListDigraph>::OPTIMAL) 
     {
-        // End timing
-        auto end_time = std::chrono::high_resolution_clock::now();
-        double elapsed_time = std::chrono::duration<double>(end_time - start_time).count();
         int cnt = 0;
 
         cout << "Optimal assignment with minimum cost:" << endl;
@@ -1733,5 +1730,9 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
     {
         cout << "No optimal solution found." << endl;
     }
+    // End timing
+    auto end_time = std::chrono::high_resolution_clock::now();
+    double elapsed_time = std::chrono::duration<double>(end_time - start_time).count();
+    cout << "Solving time: " << elapsed_time << " seconds" << endl;
 }
 }
