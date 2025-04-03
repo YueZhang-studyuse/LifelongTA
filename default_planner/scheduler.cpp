@@ -1661,6 +1661,8 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
         }
     }
 
+    unordered_map<int,int> edge_flows; //arc id, flow count
+
     // NetworkSimplex setup
     NetworkSimplex<ListDigraph> ns(g);
     ns.costMap(cost);
@@ -1681,14 +1683,25 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
         {
             ListDigraph::Node current = map_nodes[env->curr_states[flexible_agent_ids[i]].location];
 
-            while (!isTaskNode(current, g, sink)) 
+            while (node_to_task_id.find(lemon::ListDigraphBase::id(current)) == node_to_task_id.end()) 
             {
+                // Check if the current node is a task node
+                if (current == sink) break; // Reached sink, no task node found
+                // Follow the flow to the next node
+                // Find the next node in the path
                 bool found = false;
                 for (ListDigraph::OutArcIt arc(g, current); arc != INVALID; ++arc) 
                 {
                     if (ns.flow(arc) > 0) 
                     { // Follow the flow
+                        if (edge_flows.find(lemon::ListDigraphBase::id(arc)) == edge_flows.end())
+                        {
+                            edge_flows[lemon::ListDigraphBase::id(arc)] = ns.flow(arc);
+                        }
+                        if (edge_flows[lemon::ListDigraphBase::id(arc)] <= 0)
+                            continue;
                         current = g.target(arc);
+                        edge_flows[lemon::ListDigraphBase::id(arc)]--;
                         found = true;
                         break;
                     }
@@ -1696,14 +1709,19 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
                 if (!found) break;  // No path found
             }
             // Now `current` should be a task node
-            if (isTaskNode(current, g, sink)) 
+            if (node_to_task_id.find(lemon::ListDigraphBase::id(current)) != node_to_task_id.end()) 
             {
                 int task_loc = node_to_task_id[lemon::ListDigraphBase::id(current)];
                 int task_id = task_loc_ids[task_loc].front();
-                task_loc_ids[task_loc].pop_front();
                 // node_to_task_id[current].pop_front();
                 cout << "Worker " << i << " is assigned to Task " << task_id  << " through intermediate nodes." << endl;
                 proposed_schedule[flexible_agent_ids[i]] = task_id;
+                task_loc_ids[task_loc].pop_front();
+                if (task_loc_ids[task_loc].empty())
+                {
+                    task_loc_ids.erase(task_loc);
+                    node_to_task_id.erase(lemon::ListDigraphBase::id(current));
+                }
             }
             else 
             {
