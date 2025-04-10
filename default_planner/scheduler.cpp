@@ -112,6 +112,162 @@ void schedule_plan_raw(int time_limit, std::vector<int> & proposed_schedule,  Sh
 
 }
 
+void schedule_plan_h(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, bool new_only)
+{
+    auto start_time = std::chrono::high_resolution_clock::now();
+
+    proposed_schedule.resize(env->num_of_agents, -1);
+
+    vector<int>flexible_agent_ids(env->new_freeagents); //storing the agents not doing a opened task
+    vector<int>flexible_task_ids; //storing the tasks we consider to swap/assign
+
+    for (auto task: env->task_pool)
+    {
+        if (task.second.idx_next_loc > 0) //task opened
+        {
+            proposed_schedule[task.second.agent_assigned] = task.first;
+        }
+        else
+        {
+            flexible_task_ids.push_back(task.first);
+            if (new_only)
+            {
+                if (task.second.agent_assigned == -1)
+                {
+                    flexible_task_ids.push_back(task.first);
+                }
+            }
+            else
+            {
+                flexible_task_ids.push_back(task.first);
+                if (task.second.agent_assigned != -1)
+                    flexible_agent_ids.push_back(task.second.agent_assigned);
+            }
+        }
+    }
+
+    //prepare for matching
+
+    cout<<"num of flexible agents: "<<flexible_agent_ids.size()<<endl;
+    cout<<"num of flexible tasks: "<<flexible_task_ids.size()<<endl;
+
+    int num_workers = flexible_agent_ids.size();
+    int num_tasks = flexible_task_ids.size();
+
+
+    // Start timing
+    start_time = std::chrono::high_resolution_clock::now();
+    
+    // Create the graph
+    ListDigraph g;
+    ListDigraph::NodeMap<int> supply(g);
+    ListDigraph::ArcMap<double> cost(g);
+    ListDigraph::ArcMap<int> capacity(g);
+    ListDigraph::ArcMap<int> flow(g); // Store the flow for warm start
+
+    // Create worker and task nodes
+    vector<ListDigraph::Node> workers(num_workers);
+    vector<ListDigraph::Node> tasks(num_tasks);
+
+    ListDigraph::Node source = g.addNode(); // Source node
+    ListDigraph::Node sink = g.addNode();   // Sink node
+
+    // Create worker and task nodes
+    for (int i = 0; i < num_workers; ++i) workers[i] = g.addNode();
+    for (int j = 0; j < num_tasks; ++j) tasks[j] = g.addNode();
+
+    // Set supply/demand values
+    supply[source] = num_workers; // Source supplies workers
+    supply[sink] = -num_workers;  // Sink absorbs tasks
+
+    for (int i = 0; i < num_workers; ++i) supply[workers[i]] = 0;
+    for (int j = 0; j < num_tasks; ++j) supply[tasks[j]] = 0;
+
+    // Connect source to workers
+    for (int i = 0; i < num_workers; ++i) 
+    {
+        ListDigraph::Arc a = g.addArc(source, workers[i]);
+        capacity[a] = 1;
+        cost[a] = 0; // No cost for assigning workers
+    }
+
+    // Connect tasks to sink
+    for (int j = 0; j < num_tasks; ++j) 
+    {
+        ListDigraph::Arc a = g.addArc(tasks[j], sink);
+        capacity[a] = 1;
+        cost[a] = 0; // No cost for completing tasks
+    }
+
+    unordered_map<int, unordered_map<int, ListDigraph::Arc>> edges;
+    // Add arcs between workers and tasks with costs and capacities
+    for (int i = 0; i < num_workers; ++i) 
+    {
+        for (int j = 0; j < num_tasks; ++j) 
+        {
+            ListDigraph::Arc a = g.addArc(workers[i], tasks[j]);
+            int agent_id = flexible_agent_ids[i];
+            int task_id = flexible_task_ids[j];
+            int h = DefaultPlanner::get_h(env,env->curr_states[agent_id].location,env->task_pool[task_id].locations[0]);
+            //h+= DefaultPlanner::get_h(env,env->task_pool[task_id].locations[1],env->task_pool[task_id].locations[0]);
+            cost[a] = h; // Assign the cost from the heuristic
+            capacity[a] = 1; // Each worker can be assigned to at most one task
+            edges[i][j] = a;
+
+            // Initialize flow based on a warm start (for example, from a heuristic or previous solution)
+            if (env->curr_task_schedule[flexible_agent_ids[i]] == flexible_task_ids[j]) 
+            {  
+                flow[a] = 1;
+            } 
+            else 
+            {
+                flow[a] = 0;
+            }
+        }
+    }
+    // NetworkSimplex setup
+    NetworkSimplex<ListDigraph> ns(g);
+    ns.costMap(cost);
+    ns.upperMap(capacity);
+    ns.supplyMap(supply);
+    ns.flowMap(flow); // Use the initial flow (warm start)
+
+    //printDIMACS(g, source, sink, workers, tasks, capacity, cost);
+    
+    if (ns.run() == NetworkSimplex<ListDigraph>::OPTIMAL) 
+    {
+        // End timing
+        auto end_time = std::chrono::high_resolution_clock::now();
+        double elapsed_time = std::chrono::duration<double>(end_time - start_time).count();
+        int cnt = 0;
+
+        cout << "Optimal assignment with minimum cost:" << endl;
+        for (int i = 0; i < num_workers; ++i) 
+        {
+            for (int j = 0; j < num_tasks; ++j) 
+            {
+                if (edges[i].find(j) == edges[i].end()) continue; // Skip invalid pairs
+                ListDigraph::Arc a = edges[i][j];
+
+                if (ns.flow(a) > 0) // Flow > 0 means assignment exists
+                {  
+                    cnt++;
+                    // cout << "Worker " << i << " assigned to Task " << j 
+                    //      << " with cost " << cost[a] << endl;
+                    proposed_schedule[flexible_agent_ids[i]] = flexible_task_ids[j];
+                }
+            }
+        }
+        cout << "Total assignment: " << cnt << endl;
+        cout << "Total minimum cost: " << ns.totalCost<double>() << endl;
+        cout << "Solving time: " << elapsed_time << " seconds" << endl;
+    } 
+    else 
+    {
+        cout << "No optimal solution found." << endl;
+    }
+}
+
 //with cost
 void schedule_plan_matching(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Int4> background_flow, bool use_traffic, bool new_only, int maximum_edges)
 {

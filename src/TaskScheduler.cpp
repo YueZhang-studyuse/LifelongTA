@@ -34,10 +34,40 @@ void TaskScheduler::plan(int time_limit, std::vector<int> & proposed_schedule)
     //give at most half of the entry time_limit to scheduler;
     //-SCHEDULER_TIMELIMIT_TOLERANCE for timing error tolerance
     int limit = time_limit/2 - DefaultPlanner::SCHEDULER_TIMELIMIT_TOLERANCE;
-    DefaultPlanner::schedule_plan_matching(limit, proposed_schedule, env, background_flow,true,false,INT_MAX);
+
+    if (solver == 1)
+    {
+        DefaultPlanner::schedule_plan_matching(limit, proposed_schedule, env, background_flow, use_traffic, new_only, max_matching_edges);
+    }
+    else if (solver == 2)
+    {
+        DefaultPlanner::schedule_plan_flow(limit, proposed_schedule, env, background_flow, use_traffic, new_only);
+    }
+    else
+    {
+        std::cerr << "Invalid solver type. Please choose either 1 (matching) or 2 (flow)." << std::endl;
+        exit(1);
+    }
 }
 
 void TaskScheduler::set_flow(std::vector<DefaultPlanner::Int4> flow)
 {
     background_flow = flow;
+}
+
+void TaskScheduler::set_use_traffic(bool use_traffic)
+{
+    this->use_traffic = use_traffic;
+}
+void TaskScheduler::set_new_only(bool new_only)
+{
+    this->new_only = new_only;
+}
+void TaskScheduler::set_solver(int solver)
+{
+    this->solver = solver;
+}
+void TaskScheduler::set_max_matching_edges(int max_matching_edges)
+{
+    this->max_matching_edges = max_matching_edges;
 }
