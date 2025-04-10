@@ -112,7 +112,8 @@ namespace DefaultPlanner{
      * Finally, it computes the actions for the agents using PIBT that follows the guide path heuristics and returns the actions.
      * Note that the default planner ignores the turning action costs, and post-processes turning actions as additional delays on top of original plan.
      */
-    void plan(int time_limit,vector<Action> & actions, SharedEnvironment* env){
+    void plan(int time_limit,vector<Action> & actions, SharedEnvironment* env, unordered_map<int,list<int>> agent_guide_path)
+    {
 
         // calculate the time planner should stop optimsing traffic flows and return the plan.
         TimePoint start_time = std::chrono::steady_clock::now();
@@ -163,8 +164,18 @@ namespace DefaultPlanner{
 
             // check if the agent need a guide path update, when the agent has no guide path or the guide path does not end at the goal location
             require_guide_path[i] = false;
+
             if (trajLNS.trajs[i].empty() || trajLNS.trajs[i].back() != trajLNS.tasks[i])
+            {
+                if (agent_guide_path.find(i) != agent_guide_path.end())
+                {
+                    trajLNS.trajs[i].insert(trajLNS.trajs[i].end(), agent_guide_path[i].begin(), agent_guide_path[i].end());
+                }
+                else
+                {
                     require_guide_path[i] = true;
+                }
+            }
             
             // check if the agent completed the action in the previous timestep
             // if not, the agent is till turning towards the action direction, we do not need to plan new action for the agent

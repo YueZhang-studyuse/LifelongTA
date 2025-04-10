@@ -45,14 +45,16 @@ int main(int argc, char **argv)
     desc.add_options()("help", "produce help message")
         ("inputFile,i", po::value<std::string>()->required(), "input file name")
         ("output,o", po::value<std::string>()->default_value("./output.json"), "output results from the evaluation into a JSON formated file. If no file specified, the default name is 'output.json'")
-        ("outputScreen,c", po::value<int>()->default_value(1), "the level of details in the output file, 1--showing all the output, 2--ignore the events and tasks, 3--ignore the events, tasks, errors, planner times, starts and paths")
-        ("evaluationMode,m", po::value<bool>()->default_value(false), "evaluate an existing output file")
+        ("outputScreen,c", po::value<int>()->default_value(3), "the level of details in the output file, 1--showing all the output, 2--ignore the events and tasks, 3--ignore the events, tasks, errors, planner times, starts and paths")
         ("simulationTime,s", po::value<int>()->default_value(5000), "run simulation")
         ("fileStoragePath,f", po::value<std::string>()->default_value(""), "the large file storage path")
         ("planTimeLimit,t", po::value<int>()->default_value(1000), "the time limit for planner in milliseconds")
         ("preprocessTimeLimit,p", po::value<int>()->default_value(30000), "the time limit for preprocessing in milliseconds")
         ("logFile,l", po::value<std::string>()->default_value(""), "redirect stdout messages into the specified log file")
-        ("logDetailLevel,d", po::value<int>()->default_value(1), "the minimum severity level of log messages to display, 1--showing all the messages, 2--showing warnings and fatal errors, 3--showing fatal errors only");
+        ("logDetailLevel,d", po::value<int>()->default_value(1), "the minimum severity level of log messages to display, 1--showing all the messages, 2--showing warnings and fatal errors, 3--showing fatal errors only")
+        ("useTraffic,u", po::value<bool>()->default_value(false), "use of traffic in scheduling")
+        ("assignNew,n", po::value<bool>()->default_value(false), "wether new agents only or allow task swapping")
+        ("scheduleModel,m", po::value<int>()->default_value(1), "maching or flow, 1-matching, 2-flow");
     clock_t start_time = clock();
     po::store(po::parse_command_line(argc, argv, desc), vm);
 
@@ -135,6 +137,10 @@ int main(int argc, char **argv)
       logger->log_warning(stringStream.str());
     }
     planner->env->file_storage_path = file_storage_path;
+
+    planner->scheduler->set_use_traffic(vm["useTraffic"].as<bool>());
+    planner->scheduler->set_new_only(vm["assignNew"].as<bool>());
+    planner->scheduler->set_solver(vm["scheduleModel"].as<int>());
 
     ActionModel *model = new ActionModel(grid);
     model->set_logger(logger);

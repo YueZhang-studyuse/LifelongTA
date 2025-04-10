@@ -34,7 +34,7 @@ void MAPFPlanner::plan(int time_limit,vector<Action> & actions)
     //cout<<time_limit<<" "<<std::chrono::duration_cast<milliseconds>(std::chrono::steady_clock::now() - env->plan_start_time).count()<<" "<< DefaultPlanner::PLANNER_TIMELIMIT_TOLERANCE<<endl;
     int limit = time_limit - std::chrono::duration_cast<milliseconds>(std::chrono::steady_clock::now() - env->plan_start_time).count() - DefaultPlanner::PLANNER_TIMELIMIT_TOLERANCE;
 
-    DefaultPlanner::plan(limit, actions, env);
+    DefaultPlanner::plan(limit, actions, env, DefaultPlanner::get_guide_path());
     return;
 }
 
