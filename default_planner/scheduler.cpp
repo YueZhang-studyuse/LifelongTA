@@ -131,7 +131,6 @@ void schedule_plan_h(int time_limit, std::vector<int> & proposed_schedule,  Shar
         }
         else
         {
-            flexible_task_ids.push_back(task.first);
             if (new_only)
             {
                 if (task.second.agent_assigned == -1)
@@ -287,7 +286,6 @@ void schedule_plan_matching(int time_limit, std::vector<int> & proposed_schedule
         }
         else
         {
-            flexible_task_ids.push_back(task.first);
             if (new_only)
             {
                 if (task.second.agent_assigned == -1)
@@ -616,7 +614,6 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
         }
         else
         {
-            flexible_task_ids.push_back(task.first);
             if (new_only)
             {
                 if (task.second.agent_assigned == -1)
