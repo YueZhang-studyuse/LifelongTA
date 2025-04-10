@@ -35,18 +35,25 @@ void TaskScheduler::plan(int time_limit, std::vector<int> & proposed_schedule)
     //-SCHEDULER_TIMELIMIT_TOLERANCE for timing error tolerance
     int limit = time_limit/2 - DefaultPlanner::SCHEDULER_TIMELIMIT_TOLERANCE;
 
-    if (solver == 1)
+    if (!use_traffic)
     {
-        DefaultPlanner::schedule_plan_matching(limit, proposed_schedule, env, background_flow, use_traffic, new_only, max_matching_edges);
-    }
-    else if (solver == 2)
-    {
-        DefaultPlanner::schedule_plan_flow(limit, proposed_schedule, env, background_flow, use_traffic, new_only);
+        DefaultPlanner::schedule_plan_h(limit, proposed_schedule, env, new_only);
     }
     else
     {
-        std::cerr << "Invalid solver type. Please choose either 1 (matching) or 2 (flow)." << std::endl;
-        exit(1);
+        if (solver == 1)
+        {
+            DefaultPlanner::schedule_plan_matching(limit, proposed_schedule, env, background_flow, use_traffic, new_only, max_matching_edges);
+        }
+        else if (solver == 2)
+        {
+            DefaultPlanner::schedule_plan_flow(limit, proposed_schedule, env, background_flow, use_traffic, new_only);
+        }
+        else
+        {
+            std::cerr << "Invalid solver type. Please choose either 1 (matching) or 2 (flow)." << std::endl;
+            exit(1);
+        }
     }
 }
 
