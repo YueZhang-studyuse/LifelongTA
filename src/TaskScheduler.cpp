@@ -34,12 +34,7 @@ void TaskScheduler::plan(int time_limit, std::vector<int> & proposed_schedule)
     //give at most half of the entry time_limit to scheduler;
     //-SCHEDULER_TIMELIMIT_TOLERANCE for timing error tolerance
     int limit = time_limit/2 - DefaultPlanner::SCHEDULER_TIMELIMIT_TOLERANCE;
-    //DefaultPlanner::schedule_plan(limit, proposed_schedule, env, background_flow);
-    //DefaultPlanner::schedule_plan_full(limit, proposed_schedule, env, background_flow);
-    //DefaultPlanner::schedule_plan_parallel(limit, proposed_schedule, env, background_flow);
-    // DefaultPlanner::schedule_plan_lemon(limit, proposed_schedule, env, background_flow);
-    //DefaultPlanner::schedule_plan_cost(limit, proposed_schedule, env);
-    DefaultPlanner::schedule_plan_cost_greedy(limit, proposed_schedule, env);
+    DefaultPlanner::schedule_plan_matching(limit, proposed_schedule, env, background_flow,true,false,INT_MAX);
 }
 
 void TaskScheduler::set_flow(std::vector<DefaultPlanner::Int4> flow)
