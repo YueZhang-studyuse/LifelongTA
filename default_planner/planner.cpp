@@ -167,16 +167,16 @@ namespace DefaultPlanner{
 
             if (trajLNS.trajs[i].empty() || trajLNS.trajs[i].back() != trajLNS.tasks[i])
             {
-                if (agent_guide_path.find(i) != agent_guide_path.end())
-                {
-                    trajLNS.trajs[i].insert(trajLNS.trajs[i].end(), agent_guide_path[i].begin(), agent_guide_path[i].end());
-                    add_traj(trajLNS,i);
-                    update_dist_2_path(trajLNS,i);
-                }
-                else
-                {
+                // if (agent_guide_path.find(i) != agent_guide_path.end())
+                // {
+                //     trajLNS.trajs[i].insert(trajLNS.trajs[i].end(), agent_guide_path[i].begin(), agent_guide_path[i].end());
+                //     add_traj(trajLNS,i);
+                //     update_dist_2_path(trajLNS,i);
+                // }
+                // else
+                // {
                     require_guide_path[i] = true;
-                }
+                // }
             }
             
             // check if the agent completed the action in the previous timestep
