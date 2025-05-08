@@ -75,17 +75,18 @@ void BaseSystem::plan(int & timeout_timesteps)
 
     started = true;
 
-    while (timestep + timeout_timesteps < simulation_time){
+    while (timestep + timeout_timesteps < simulation_time)
+    {
 
         if (future.wait_for(std::chrono::milliseconds(plan_time_limit)) == std::future_status::ready)
-            {
-                task_td.join();
-                started = false;
-                auto res = future.get();
+        {
+            task_td.join();
+            started = false;
+            auto res = future.get();
 
-                logger->log_info("planner returns", timestep + timeout_timesteps);
-                return;
-            }
+            logger->log_info("planner returns", timestep + timeout_timesteps);
+            return;
+        }
         logger->log_info("planner timeout", timestep + timeout_timesteps);
         timeout_timesteps += 1;
     }

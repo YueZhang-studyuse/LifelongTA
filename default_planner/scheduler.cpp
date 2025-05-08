@@ -209,7 +209,7 @@ void schedule_plan_h(int time_limit, std::vector<int> & proposed_schedule,  Shar
             ListDigraph::Arc a = g.addArc(workers[i], tasks[j]);
             int agent_id = flexible_agent_ids[i];
             int task_id = flexible_task_ids[j];
-            int h = DefaultPlanner::get_h(env,env->curr_states[agent_id].location,env->task_pool[task_id].locations[0]);
+            int h = manhattanDistance(env->curr_states[agent_id].location,env->task_pool[task_id].locations[0],env);
             //h+= DefaultPlanner::get_h(env,env->task_pool[task_id].locations[1],env->task_pool[task_id].locations[0]);
             cost[a] = h; // Assign the cost from the heuristic
             capacity[a] = 1; // Each worker can be assigned to at most one task
@@ -788,7 +788,7 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
                 int task_loc = node_to_task_id[lemon::ListDigraphBase::id(current)];
                 int task_id = task_loc_ids[task_loc].front();
                 // node_to_task_id[current].pop_front();
-                cout << "Worker " << i << " is assigned to Task " << task_id  << " through intermediate nodes." << endl;
+                // cout << "Worker " << i << " is assigned to Task " << task_id  << " through intermediate nodes." << endl;
                 proposed_schedule[flexible_agent_ids[i]] = task_id;
                 agent_guide_path[flexible_agent_ids[i]] = path;
                 task_loc_ids[task_loc].pop_front();
