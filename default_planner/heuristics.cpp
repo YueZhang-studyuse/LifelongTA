@@ -105,8 +105,9 @@ int get_h(SharedEnvironment* env, int source, int target){
 
 
 void init_dist_2_path(Dist2Path& dp, SharedEnvironment* env, Traj& path){
-	if (dp.dist2path.empty())
-		dp.dist2path.resize(env->map.size(), d2p(0,-1,MAX_TIMESTEP,MAX_TIMESTEP));
+	// if (dp.dist2path.empty())
+	// 	dp.dist2path.resize(env->map.size(), d2p(0,-1,MAX_TIMESTEP,MAX_TIMESTEP));
+	dp.dist2path.clear();
 	
 	dp.open.clear();
 	dp.label++;

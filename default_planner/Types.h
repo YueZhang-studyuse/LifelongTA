@@ -91,13 +91,14 @@ namespace DefaultPlanner{
 		int id = -1;
 		int cost = -1;
 		int togo = -1;
+		d2p() = default;
 
 		d2p(int label, int id, int cost, int togo):label(label), id(id), cost(cost), togo(togo){};
 	};
 
 	struct Dist2Path{
 		int label = 0;
-		std::vector<d2p> dist2path;
+		std::unordered_map<int,d2p> dist2path;
 		std::deque<d2p> open;
 		
 		bool empty(){
