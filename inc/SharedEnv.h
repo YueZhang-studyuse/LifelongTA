@@ -38,4 +38,7 @@ public:
     TimePoint plan_start_time;
 
     SharedEnvironment(){}
+
+    vector<pair<int,int>> past_waitings;
+    vector<int> accu_waitings;
 };

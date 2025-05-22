@@ -816,6 +816,216 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
 
 }
 
+void schedule_plan_flow_hist(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<pair<int,int>>& background_flow, bool new_only)
+{
+    auto start_time = std::chrono::high_resolution_clock::now();
+
+    agent_guide_path.clear();
+
+    proposed_schedule.resize(env->num_of_agents, -1);
+
+    vector<int>flexible_agent_ids(env->new_freeagents); //storing the agents not doing a opened task
+    vector<int>flexible_task_ids; //storing the tasks we consider to swap/assign
+    unordered_map<int,list<int>> task_loc_ids;
+
+    for (auto task: env->task_pool)
+    {
+        if (task.second.idx_next_loc > 0) //task opened
+        {
+            proposed_schedule[task.second.agent_assigned] = task.first;
+        }
+        else
+        {
+            if (new_only)
+            {
+                if (task.second.agent_assigned == -1)
+                {
+                    flexible_task_ids.push_back(task.first);
+                    task_loc_ids[task.second.locations[0]].push_back(task.first);
+                }
+            }
+            else
+            {
+                flexible_task_ids.push_back(task.first);
+                task_loc_ids[task.second.locations[0]].push_back(task.first);
+                if (task.second.agent_assigned != -1)
+                    flexible_agent_ids.push_back(task.second.agent_assigned);
+            }
+        }
+    }
+
+    cout<<"num of flexible agents: "<<flexible_agent_ids.size()<<endl;
+    cout<<"num of flexible tasks: "<<flexible_task_ids.size()<<endl;
+
+    int num_workers = flexible_agent_ids.size();
+    int num_tasks = flexible_task_ids.size();
+
+    // Start timing
+    start_time = std::chrono::high_resolution_clock::now();
+    
+    // Create the graph
+    ListDigraph g;
+    ListDigraph::NodeMap<int> supply(g);
+    ListDigraph::ArcMap<double> cost(g);
+    ListDigraph::ArcMap<int> capacity(g);
+    ListDigraph::ArcMap<int> flow(g); // Store the flow for warm start
+
+    vector<ListDigraph::Node> map_nodes(env->map.size());
+
+    ListDigraph::Node source = g.addNode(); // Source node
+    ListDigraph::Node sink = g.addNode();   // Sink node
+
+    unordered_map<int, int> node_to_maploc; // map graph node id to env->map index
+    unordered_map<int, int> maploc_to_node; // reverse
+
+    // Create worker and task nodes
+    for (int i = 0 ; i < env->map.size(); ++i)
+    {
+        map_nodes[i] = g.addNode();
+        int id = lemon::ListDigraphBase::id(map_nodes[i]);
+        node_to_maploc[id] = i;
+        maploc_to_node[i] = id;
+    } 
+
+    // Set supply/demand values
+    supply[source] = num_workers; // Source supplies workers
+    supply[sink] = -num_workers;  // Sink absorbs tasks
+
+    for (int i = 0; i < num_workers; ++i) supply[map_nodes[i]] = 0;
+
+    // Connect source to workers
+    for (int i = 0; i < num_workers; ++i) 
+    {
+        ListDigraph::Arc a = g.addArc(source, map_nodes[env->curr_states[flexible_agent_ids[i]].location]);
+        capacity[a] = 1;
+        cost[a] = 0; // No cost for assigning workers
+    }
+
+    unordered_map<int, int> node_to_task_id;
+
+
+    for (auto task: task_loc_ids)
+    {
+        int loc = task.first;
+        ListDigraph::Arc a = g.addArc(map_nodes[loc], sink);
+        node_to_task_id[lemon::ListDigraphBase::id(map_nodes[loc])] = loc;
+        capacity[a] = task.second.size();
+        cost[a] = 0;
+    }
+
+    vector<int> neighbor = {-env->cols, 1, env->cols, -1};
+    double vertex_flow = 0;
+    double edge_flow = 0;
+
+    for (int loc = 0; loc < env->map.size(); loc++)
+    {
+        if (env->map[loc] != 0) continue;
+        //try four directions
+        for (int i = 0; i < 4; i++)
+        {
+            int neighbor_loc = loc + neighbor[i];
+            if (neighbor_loc < 0 || neighbor_loc >= env->map.size() || env->map[neighbor_loc] != 0)
+                continue;
+            ListDigraph::Arc a = g.addArc(map_nodes[loc], map_nodes[neighbor_loc]);
+
+            if (background_flow[loc*5].second != 0)
+                vertex_flow = background_flow[loc*5].first/background_flow[loc*5].second;
+
+            if (background_flow[neighbor_loc*5+i].second != 0)
+                edge_flow = background_flow[neighbor_loc*5+i].first/background_flow[neighbor_loc*5+i].second;
+
+            cost[a] = 1 + vertex_flow + edge_flow;
+
+            capacity[a] = num_workers;
+        }
+    }
+
+    unordered_map<int,int> edge_flows; //arc id, flow count
+
+    // NetworkSimplex setup
+    NetworkSimplex<ListDigraph> ns(g);
+    ns.costMap(cost);
+    ns.upperMap(capacity);
+    ns.supplyMap(supply);
+    ns.flowMap(flow); // Use the initial flow (warm start)
+    
+    if (ns.run() == NetworkSimplex<ListDigraph>::OPTIMAL) 
+    {
+        int cnt = 0;
+
+        cout << "Optimal assignment with minimum cost:" << endl;
+        // Iterate over all worker nodes
+        for (int i = 0; i < num_workers; i++) 
+        {
+            ListDigraph::Node current = map_nodes[env->curr_states[flexible_agent_ids[i]].location];
+
+            list<int> path;
+
+            while (node_to_task_id.find(lemon::ListDigraphBase::id(current)) == node_to_task_id.end()) 
+            {
+                // Check if the current node is a task node
+                if (current == sink) break; // Reached sink, no task node found
+
+                int loc = node_to_maploc[lemon::ListDigraphBase::id(current)];
+                path.push_back(loc);
+
+                // Follow the flow to the next node
+                // Find the next node in the path
+                bool found = false;
+                for (ListDigraph::OutArcIt arc(g, current); arc != INVALID; ++arc) 
+                {
+                    if (ns.flow(arc) > 0) 
+                    { // Follow the flow
+                        if (edge_flows.find(lemon::ListDigraphBase::id(arc)) == edge_flows.end())
+                        {
+                            edge_flows[lemon::ListDigraphBase::id(arc)] = ns.flow(arc);
+                        }
+                        if (edge_flows[lemon::ListDigraphBase::id(arc)] <= 0)
+                            continue;
+                        current = g.target(arc);
+                        edge_flows[lemon::ListDigraphBase::id(arc)]--;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) break;  // No path found
+            }
+            // Now `current` should be a task node
+            if (node_to_task_id.find(lemon::ListDigraphBase::id(current)) != node_to_task_id.end()) 
+            {
+                int task_loc = node_to_task_id[lemon::ListDigraphBase::id(current)];
+                int task_id = task_loc_ids[task_loc].front();
+                // node_to_task_id[current].pop_front();
+                path.push_back(task_loc);
+                // cout << "Worker " << i << " is assigned to Task " << task_id  << " through intermediate nodes." << endl;
+                proposed_schedule[flexible_agent_ids[i]] = task_id;
+                agent_guide_path[flexible_agent_ids[i]] = path;
+                task_loc_ids[task_loc].pop_front();
+                if (task_loc_ids[task_loc].empty())
+                {
+                    task_loc_ids.erase(task_loc);
+                    node_to_task_id.erase(lemon::ListDigraphBase::id(current));
+                }
+            }
+            else 
+            {
+                cout << "No solution found." << endl;
+            }
+        }
+    }
+    else 
+    {
+        cout << "No optimal solution found." << endl;
+    }
+    // End timing
+    auto end_time = std::chrono::high_resolution_clock::now();
+    double elapsed_time = std::chrono::duration<double>(end_time - start_time).count();
+    cout << "Solving time: " << elapsed_time << " seconds" << endl;
+
+}
+
+
+
 void printDIMACS(ListDigraph& g, 
                  ListDigraph::Node source, 
                  ListDigraph::Node sink, 

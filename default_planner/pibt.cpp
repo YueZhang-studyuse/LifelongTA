@@ -74,7 +74,6 @@ bool causalPIBT(int curr_id, int higher_id,std::vector<State>& prev_states,
 			return a.heuristic < b.heuristic; 
 		});
 
-
     for (auto& next: successors)
 	{
 		// if(occupied[next.location])

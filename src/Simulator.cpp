@@ -38,6 +38,34 @@ vector<State> Simulator::move(vector<Action>& actions)
 
 void Simulator::sync_shared_env(SharedEnvironment* env) 
 {
+    for (int i = 0; i < planner_movements.size(); i++)
+    {
+        if (planner_movements[i].back() == Action::NA)
+            continue;
+        if (planner_movements[i].back() == Action::WA)
+        {
+            env->accu_waitings[i]++;
+        }
+        else
+        {
+            int time = env->accu_waitings[i]+1;
+            env->past_waitings[curr_states[i].location*5].first += time;
+            env->past_waitings[curr_states[i].location*5].second++;
+            //north, east, south, west in order
+            int counter = 0;
+            if (planner_movements[i].back() == Action::N)
+                counter = 1;
+            else if (planner_movements[i].back() == Action::E)
+                counter = 2;
+            else if (planner_movements[i].back() == Action::S)
+                counter = 3;
+            else if (planner_movements[i].back() == Action::WE)
+                counter = 4;
+            env->past_waitings[curr_states[i].location*5+counter].first += time;
+            env->past_waitings[curr_states[i].location*5+counter].second++;
+            env->accu_waitings[i]=0;
+        }
+    }
     env->curr_states = curr_states;
     env->curr_timestep = timestep;
 }
