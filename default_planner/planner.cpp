@@ -167,16 +167,7 @@ namespace DefaultPlanner{
 
             if (trajLNS.trajs[i].empty() || trajLNS.trajs[i].back() != trajLNS.tasks[i])
             {
-                // if (agent_guide_path.find(i) != agent_guide_path.end())
-                // {
-                //     trajLNS.trajs[i].insert(trajLNS.trajs[i].end(), agent_guide_path[i].begin(), agent_guide_path[i].end());
-                //     add_traj(trajLNS,i);
-                //     update_dist_2_path(trajLNS,i);
-                // }
-                // else
-                // {
-                    require_guide_path[i] = true;
-                // }
+                require_guide_path[i] = true;
             }
             
             // check if the agent completed the action in the previous timestep
@@ -212,13 +203,24 @@ namespace DefaultPlanner{
         }
 
         // compute the congestion minimised guide path for the agents that need guide path update
-        for (int i = 0; i < env->num_of_agents;i++){
+        for (int i = 0; i < env->num_of_agents;i++)
+        {
             if (std::chrono::steady_clock::now() >end_time)
                 break;
-            if (require_guide_path[i]){
+            if (require_guide_path[i])
+            {
                 if (!trajLNS.trajs[i].empty())
                     remove_traj(trajLNS, i);
-                update_traj(trajLNS, i);
+                if (agent_guide_path.find(i) != agent_guide_path.end())
+                {
+                    trajLNS.trajs[i].insert(trajLNS.trajs[i].end(), agent_guide_path[i].begin(), agent_guide_path[i].end());
+                    add_traj(trajLNS,i);
+                    update_dist_2_path(trajLNS,i);
+                }
+                else
+                {
+                    update_traj(trajLNS, i);
+                }
             }
         }
 
