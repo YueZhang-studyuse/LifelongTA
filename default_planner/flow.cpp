@@ -76,8 +76,10 @@ void get_deviation(TrajLNS& lns){
     return;
 }
 
-void update_fw_metrics(TrajLNS& lns){
-    for  (int i=0; i< lns.env->num_of_agents;i++){
+void update_fw_metrics(TrajLNS& lns)
+{
+    for  (int i=0; i< lns.env->num_of_agents;i++)
+    {
         lns.fw_metrics[i].id = i;
         lns.fw_metrics[i].rand = rand();
         lns.fw_metrics[i].deviation = 0;

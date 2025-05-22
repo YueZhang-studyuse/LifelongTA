@@ -206,7 +206,10 @@ namespace DefaultPlanner{
         for (int i = 0; i < env->num_of_agents;i++)
         {
             if (std::chrono::steady_clock::now() >end_time)
+            {
+                cout<<"compute initial stop until "<<i<<endl;
                 break;
+            }
             if (require_guide_path[i])
             {
                 if (!trajLNS.trajs[i].empty())
