@@ -60,7 +60,7 @@ json Simulator::actual_path_to_json() const
             {
                 first = false;
             }
-            path+=action;
+            // path+=action;
 
             // if (action == Action::FW)
             // {
@@ -82,6 +82,30 @@ json Simulator::actual_path_to_json() const
             // {
             //     path+="W";
             // }
+            if (action == Action::N)
+            {
+                path+="NO";
+            }
+            else if (action == Action::E)
+            {
+                path+="EA";
+            } 
+            else if (action == Action::S)
+            {
+                path+="SO";
+            }
+            else if (action == Action::WE)
+            {
+                path+="WE";
+            }
+            else if (action == Action::NA)
+            {
+                path+="T";
+            }
+            else
+            {
+                path+="W";
+            }
         }
         apaths.push_back(path);
     }
@@ -107,7 +131,7 @@ json Simulator::planned_path_to_json() const
             {
                 first = false;
             }
-            path+=action;
+            // path+=action;
 
             // if (action == Action::FW)
             // {
@@ -129,6 +153,30 @@ json Simulator::planned_path_to_json() const
             // {
             //     path+="W";
             // }
+            if (action == Action::N)
+            {
+                path+="NO";
+            }
+            else if (action == Action::E)
+            {
+                path+="EA";
+            } 
+            else if (action == Action::S)
+            {
+                path+="SO";
+            }
+            else if (action == Action::WE)
+            {
+                path+="WE";
+            }
+            else if (action == Action::NA)
+            {
+                path+="T";
+            }
+            else
+            {
+                path+="W";
+            }
         }  
         ppaths.push_back(path);
     }
