@@ -82,7 +82,11 @@ void Entry::update_goal_locations(std::vector<int> & proposed_schedule)
             continue;
 
         int i_loc = env->task_pool[t_id].idx_next_loc;
-        env->goal_locations[i].push_back({env->task_pool[t_id].locations.at(i_loc), env->task_pool[t_id].t_revealed});
+        while (i_loc < env->task_pool[t_id].locations.size())
+        {
+            env->goal_locations[i].push_back({env->task_pool[t_id].locations.at(i_loc), env->task_pool[t_id].t_revealed});
+            i_loc++;
+        }
     }
 
     return;
