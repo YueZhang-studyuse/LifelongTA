@@ -213,6 +213,7 @@ namespace DefaultPlanner{
                     remove_traj(trajLNS, i);
                 if (agent_guide_path.find(i) != agent_guide_path.end())
                 {
+                    trajLNS.trajs[i].clear();
                     trajLNS.trajs[i].insert(trajLNS.trajs[i].end(), agent_guide_path[i].begin(), agent_guide_path[i].end());
                     add_traj(trajLNS,i);
                     update_dist_2_path(trajLNS,i);
