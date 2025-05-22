@@ -54,7 +54,8 @@ int main(int argc, char **argv)
         ("logDetailLevel,d", po::value<int>()->default_value(1), "the minimum severity level of log messages to display, 1--showing all the messages, 2--showing warnings and fatal errors, 3--showing fatal errors only")
         ("useTraffic,u", po::value<bool>()->default_value(false), "use of traffic in scheduling")
         ("assignNew,n", po::value<bool>()->default_value(false), "wether new agents only or allow task swapping")
-        ("scheduleModel,m", po::value<int>()->default_value(1), "maching or flow, 1-matching, 2-flow");
+        ("scheduleModel,m", po::value<int>()->default_value(1), "maching or flow, 1-matching, 2-flow")
+        ("commitWindow,w", po::value<int>()->default_value(1), "commit window");
     clock_t start_time = clock();
     po::store(po::parse_command_line(argc, argv, desc), vm);
 
@@ -141,6 +142,7 @@ int main(int argc, char **argv)
     planner->scheduler->set_use_traffic(vm["useTraffic"].as<bool>());
     planner->scheduler->set_new_only(vm["assignNew"].as<bool>());
     planner->scheduler->set_solver(vm["scheduleModel"].as<int>());
+    planner->commit_window = vm["commitWindow"].as<int>();
 
     ActionModel *model = new ActionModel(grid);
     model->set_logger(logger);
@@ -155,7 +157,7 @@ int main(int argc, char **argv)
     system_ptr = std::make_unique<BaseSystem>(grid, planner, agents, tasks, model);
 
     system_ptr->set_logger(logger);
-    system_ptr->set_plan_time_limit(vm["planTimeLimit"].as<int>());
+    system_ptr->set_plan_time_limit(vm["planTimeLimit"].as<int>()*vm["commitWindow"].as<int>());//times commit window
     system_ptr->set_preprocess_time_limit(vm["preprocessTimeLimit"].as<int>());
 
     system_ptr->set_num_tasks_reveal(read_param_json<float>(data, "numTasksReveal", 1));

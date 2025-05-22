@@ -285,4 +285,106 @@ namespace DefaultPlanner{
         return;
 
     };
+
+    void plan_pibt(int time_limit,vector<Action> & actions, SharedEnvironment* env)
+    {
+
+        // calculate the time planner should stop optimsing traffic flows and return the plan.
+        TimePoint start_time = std::chrono::steady_clock::now();
+        //cap the time for distance to goal heuristic table initialisation to half of the given time_limit;
+        int pibt_time = PIBT_RUNTIME_PER_100_AGENTS * env->num_of_agents/100;
+        //traffic flow assignment end time, leave PIBT_RUNTIME_PER_100_AGENTS ms per 100 agent and TRAFFIC_FLOW_ASSIGNMENT_END_TIME_TOLERANCE ms for computing pibt actions;
+        TimePoint end_time = start_time + std::chrono::milliseconds(time_limit - pibt_time - TRAFFIC_FLOW_ASSIGNMENT_END_TIME_TOLERANCE); 
+        cout << "plan limit " << time_limit <<endl;
+
+        // recrod the initial location of each agent as dummy goals in case no goal is assigned to the agent.
+        if (env->curr_timestep == 0){
+            dummy_goals.resize(env->num_of_agents);
+            for(int i=0; i<env->num_of_agents; i++)
+            {
+                dummy_goals.at(i) = env->curr_states.at(i).location;
+            }
+        }
+
+        // data sturcture for record the previous decision of each agent
+        prev_decision.clear();
+        prev_decision.resize(env->map.size(), -1);
+
+        // update the status of each agent and prepare for planning
+        int count = 0;
+        for(int i=0; i<env->num_of_agents; i++)
+        {
+            // set the goal location of each agent
+            if (env->goal_locations[i].empty()){
+                trajLNS.tasks[i] = dummy_goals.at(i);
+                p[i] = p_copy[i];
+            }
+            
+            // check if the agent completed the action in the previous timestep
+            // if not, the agent is till turning towards the action direction, we do not need to plan new action for the agent
+            assert(env->curr_states[i].location >=0);
+            prev_states[i] = env->curr_states[i];
+            next_states[i] = State();
+            prev_decision[env->curr_states[i].location] = i; 
+            if (decided[i].loc == -1){
+                decided[i].loc = env->curr_states[i].location;
+                assert(decided[i].state == DONE::DONE);
+            }
+            decided[i].state = DONE::DONE;
+
+            // reset the pibt priority if the agent reached prvious goal location and switch to new goal location
+            if (!env->goal_locations[i].empty())
+                p[i] = p[i]+1;
+
+            // give priority bonus to the agent if the agent is in a deadend location
+            if (!env->goal_locations[i].empty() && trajLNS.neighbors[env->curr_states[i].location].size() == 1){
+                p[i] = p[i] + 10;
+            }
+            
+        }
+
+        // sort agents based on the current priority
+        std::sort(ids.begin(), ids.end(), [&](int a, int b) {
+                return p.at(a) > p.at(b);
+            }
+        );
+
+        // cout <<"time used: " <<  std::chrono::duration_cast<milliseconds>(std::chrono::steady_clock::now() - env->plan_start_time).count() <<endl;;
+        //pibt
+        for (int i : ids)
+        {
+            if (next_states[i].location==-1)
+            {
+                assert(prev_states[i].location >=0 && prev_states[i].location < env->map.size());
+                causalPIBT(i,-1,prev_states,next_states,
+                    prev_decision,decision,
+                    occupied, trajLNS);
+            }
+        }
+        
+        // post processing the targeted next location to turning or moving actions
+        actions.resize(env->num_of_agents);
+        for (int id : ids)
+        {
+            //clear the decision table based on which agent has next_states
+            if (next_states.at(id).location!= -1)
+                decision.at(next_states.at(id).location) = -1;
+
+            if (next_states.at(id).location >=0)
+            {
+                decided.at(id) = DCR({next_states.at(id).location,DONE::NOT_DONE});
+            }
+
+            // post process the targeted next location to turning or moving actions
+            actions.at(id) = getAction(prev_states.at(id),decided.at(id).loc, env);
+            checked.at(id) = false;
+
+        }
+
+
+
+        prev_states = next_states;
+        return;
+
+    };
 }
