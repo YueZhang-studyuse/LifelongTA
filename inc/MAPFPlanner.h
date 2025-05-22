@@ -21,5 +21,6 @@ public:
     virtual void plan(int time_limit, std::vector<Action> & plan);
 
     std::vector<DefaultPlanner::Int4> get_flow();
+    void plan_pibt(int time_limit,vector<Action> & actions); 
 
 };

@@ -788,6 +788,7 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
                 int task_loc = node_to_task_id[lemon::ListDigraphBase::id(current)];
                 int task_id = task_loc_ids[task_loc].front();
                 // node_to_task_id[current].pop_front();
+                path.push_back(task_loc);
                 // cout << "Worker " << i << " is assigned to Task " << task_id  << " through intermediate nodes." << endl;
                 proposed_schedule[flexible_agent_ids[i]] = task_id;
                 agent_guide_path[flexible_agent_ids[i]] = path;

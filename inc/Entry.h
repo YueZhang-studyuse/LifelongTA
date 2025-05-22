@@ -12,6 +12,8 @@ public:
     SharedEnvironment* env;
     MAPFPlanner* planner;
     TaskScheduler* scheduler;
+    int commit_window = 1;
+    int time_in_commit_window = 0;
 
 	Entry(SharedEnvironment* env): env(env)
     {
