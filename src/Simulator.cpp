@@ -48,7 +48,11 @@ void Simulator::sync_shared_env(SharedEnvironment* env)
         }
         else
         {
-            int time = env->accu_waitings[i]+1;
+            if (env->accu_waitings[i] == 0)
+            {
+                continue; // no waiting time to add
+            }
+            int time = env->accu_waitings[i];
             env->past_waitings[curr_states[i].location*5].first += time;
             env->past_waitings[curr_states[i].location*5].second++;
             //north, east, south, west in order

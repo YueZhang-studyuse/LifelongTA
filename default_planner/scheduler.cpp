@@ -928,13 +928,13 @@ void schedule_plan_flow_hist(int time_limit, std::vector<int> & proposed_schedul
                 continue;
             ListDigraph::Arc a = g.addArc(map_nodes[loc], map_nodes[neighbor_loc]);
 
-            if (background_flow[loc*5].second != 0)
-                vertex_flow = background_flow[loc*5].first/background_flow[loc*5].second;
+            // if (background_flow[loc*5].second != 0)
+            //     vertex_flow = background_flow[loc*5].first/background_flow[loc*5].second;
 
             if (background_flow[neighbor_loc*5+i].second != 0)
                 edge_flow = background_flow[neighbor_loc*5+i].first/background_flow[neighbor_loc*5+i].second;
 
-            cost[a] = 1 + vertex_flow + edge_flow;
+            cost[a] = 1 + edge_flow;
 
             capacity[a] = num_workers;
         }
