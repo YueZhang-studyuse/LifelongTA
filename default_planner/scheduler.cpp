@@ -932,7 +932,7 @@ void schedule_plan_flow_hist(int time_limit, std::vector<int> & proposed_schedul
             //     vertex_flow = background_flow[loc*5].first/background_flow[loc*5].second;
 
             if (background_flow[neighbor_loc*5+i].second != 0)
-                edge_flow = background_flow[neighbor_loc*5+i].first/background_flow[neighbor_loc*5+i].second;
+                edge_flow = (double)background_flow[neighbor_loc*5+i].first/(double)background_flow[neighbor_loc*5+i].second;
 
             cost[a] = 1 + edge_flow;
 
