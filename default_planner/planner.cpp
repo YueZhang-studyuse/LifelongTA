@@ -202,35 +202,35 @@ namespace DefaultPlanner{
             
         }
 
-        // // compute the congestion minimised guide path for the agents that need guide path update
-        // for (int i = 0; i < env->num_of_agents;i++)
-        // {
-        //     if (std::chrono::steady_clock::now() >end_time)
-        //     {
-        //         cout<<"compute initial stop until "<<i<<endl;
-        //         break;
-        //     }
-        //     if (require_guide_path[i])
-        //     {
-        //         if (!trajLNS.trajs[i].empty())
-        //             remove_traj(trajLNS, i);
-        //         if (agent_guide_path.find(i) != agent_guide_path.end())
-        //         {
-        //             trajLNS.trajs[i].clear();
-        //             trajLNS.trajs[i].insert(trajLNS.trajs[i].end(), agent_guide_path[i].begin(), agent_guide_path[i].end());
-        //             add_traj(trajLNS,i);
-        //             update_dist_2_path(trajLNS,i);
-        //         }
-        //         else
-        //         {
-        //             update_traj(trajLNS, i);
-        //         }
-        //     }
-        // }
+        // compute the congestion minimised guide path for the agents that need guide path update
+        for (int i = 0; i < env->num_of_agents;i++)
+        {
+            if (std::chrono::steady_clock::now() >end_time)
+            {
+                cout<<"compute initial stop until "<<i<<endl;
+                break;
+            }
+            if (require_guide_path[i])
+            {
+                if (!trajLNS.trajs[i].empty())
+                    remove_traj(trajLNS, i);
+                if (agent_guide_path.find(i) != agent_guide_path.end())
+                {
+                    trajLNS.trajs[i].clear();
+                    trajLNS.trajs[i].insert(trajLNS.trajs[i].end(), agent_guide_path[i].begin(), agent_guide_path[i].end());
+                    add_traj(trajLNS,i);
+                    update_dist_2_path(trajLNS,i);
+                }
+                else
+                {
+                    update_traj(trajLNS, i);
+                }
+            }
+        }
 
-        // // iterate and recompute the guide path to optimise traffic flow
+        // iterate and recompute the guide path to optimise traffic flow
         // std::unordered_set<int> updated;
-        // frank_wolfe(trajLNS, updated,end_time);
+        //frank_wolfe(trajLNS, updated,end_time);
 
         // sort agents based on the current priority
         std::sort(ids.begin(), ids.end(), [&](int a, int b) {

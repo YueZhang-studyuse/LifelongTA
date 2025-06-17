@@ -76,44 +76,44 @@ s_node astar(SharedEnvironment* env, std::vector<Int4>& flow,
             op_flow = 0;
             all_vertex_flow = 0;
 
-            if(ht.empty())
-                h = manhattanDistance(next,goal,env);
-            else
-                h = get_heuristic(ht,env, next, ns);
+            // if(ht.empty())
+            //     h = manhattanDistance(next,goal,env);
+            // else
+            //     h = get_heuristic(ht,env, next, ns);
 
-            diff = next - curr->id;
-            d = get_d(diff,env);
-            if (curr->parent != nullptr){
-                p_diff = curr->id - curr->parent->id;
-                p_d = get_d(p_diff,env);
-                if (p_d!=d)
-                    tie_breaker = 0.1;
-                else
-                    tie_breaker = 0;
-                //tie breaking on prefering moving forward
-            }
+            // diff = next - curr->id;
+            // d = get_d(diff,env);
+            // if (curr->parent != nullptr){
+            //     p_diff = curr->id - curr->parent->id;
+            //     p_d = get_d(p_diff,env);
+            //     if (p_d!=d)
+            //         tie_breaker = 0.1;
+            //     else
+            //         tie_breaker = 0;
+            //     //tie breaking on prefering moving forward
+            // }
 
 
-            temp_op = ( (flow[curr->id].d[d]+1) * flow[next].d[(d+2)%4]);///( ( (flow[curr->id].d[d]+1) + flow[next].d[(d+2)%4]));
+            // temp_op = ( (flow[curr->id].d[d]+1) * flow[next].d[(d+2)%4]);///( ( (flow[curr->id].d[d]+1) + flow[next].d[(d+2)%4]));
 
-            //all vertex flow
-            //the sum of all out going edge flow is the same as the total number of vertex visiting.
-            temp_vertex = 1;
-            for (int j=0; j<4; j++){
-                temp_vertex += flow[next].d[j];                
-            }
+            // //all vertex flow
+            // //the sum of all out going edge flow is the same as the total number of vertex visiting.
+            // temp_vertex = 1;
+            // for (int j=0; j<4; j++){
+            //     temp_vertex += flow[next].d[j];                
+            // }
 
-            op_flow += temp_op;
+            // op_flow += temp_op;
         
-            all_vertex_flow+= (temp_vertex-1) /2;
+            // all_vertex_flow+= (temp_vertex-1) /2;
 
-            p_diff = 0;
-            if (curr->parent != nullptr){
-                p_diff = curr->id - curr->parent->id;
-            }
+            // p_diff = 0;
+            // if (curr->parent != nullptr){
+            //     p_diff = curr->id - curr->parent->id;
+            // }
 
-            op_flow += curr->op_flow; //op_flow is contra flow
-            all_vertex_flow += curr->all_vertex_flow;
+            // op_flow += curr->op_flow; //op_flow is contra flow
+            // all_vertex_flow += curr->all_vertex_flow;
 
             s_node temp_node(next,cost,h,op_flow, depth);
             temp_node.tie_breaker = tie_breaker;
