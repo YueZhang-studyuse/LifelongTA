@@ -42,6 +42,7 @@ s_node astar(SharedEnvironment* env, std::vector<Int4>& flow,
     int next_d1, next_d2, next_d1_loc, next_d2_loc;
     int temp_op, temp_vertex;
     double tie_breaker, decay_factor;
+    double waiting = 0;
 
     s_node* goal_node = nullptr;
     int neighbors[4];
@@ -116,7 +117,7 @@ s_node astar(SharedEnvironment* env, std::vector<Int4>& flow,
             // all_vertex_flow += curr->all_vertex_flow;
 
             if (env->past_waitings[curr->id*5+i].second != 0)
-                op_flow = (double)env->past_waitings[curr->id*5+i].first/(double)env->past_waitings[curr->id*5+i].second;
+                cost += (double)env->past_waitings[curr->id*5+i].first/(double)env->past_waitings[curr->id*5+i].second;
 
             s_node temp_node(next,cost,h,op_flow, depth);
             temp_node.tie_breaker = tie_breaker;

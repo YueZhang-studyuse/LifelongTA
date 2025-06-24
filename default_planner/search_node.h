@@ -9,7 +9,7 @@ struct s_node
 {
     int label = 0;
     int id = -1; //also location, -1 indicated not generated yet.
-    int g = 0;
+    double g = 0;
     int h = 0;
     int op_flow = 0;
     int all_vertex_flow = 0;
@@ -24,7 +24,7 @@ struct s_node
     s_node(int id, int g, int h, int op_flow, int depth) : id(id), g(g), h(h), op_flow(op_flow),depth(depth) {};
     s_node() = default;
 
-    int get_f() const { return g + h; }
+    double get_f() const { return g + h; }
     bool is_closed() const { return closed; }
     void close() { closed = true; }
     int get_op_flow() const { return op_flow; }
