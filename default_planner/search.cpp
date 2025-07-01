@@ -116,8 +116,8 @@ s_node astar(SharedEnvironment* env, std::vector<Int4>& flow,
             // op_flow += curr->op_flow; //op_flow is contra flow
             // all_vertex_flow += curr->all_vertex_flow;
 
-            if (env->past_waitings[curr->id*5+i+1].second != 0)
-                cost += (double)env->past_waitings[curr->id*5+i+1].first/(double)env->past_waitings[curr->id*5+i+1].second;
+            // if (env->past_waitings[curr->id*5+i+1].second != 0)
+            //     cost += (double)env->past_waitings[curr->id*5+i+1].first/(double)env->past_waitings[curr->id*5+i+1].second;
 
             s_node temp_node(next,cost,h,op_flow, depth);
             temp_node.tie_breaker = tie_breaker;
