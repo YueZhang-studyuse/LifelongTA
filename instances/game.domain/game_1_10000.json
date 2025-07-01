@@ -1,0 +1,8 @@
+{
+    "mapFile": "maps/lak303d.map",
+    "agentFile": "agents/game_10000.agents",
+    "teamSize": 10000,
+    "taskFile": "tasks/game.tasks",
+    "numTasksReveal": 1.0,
+    "version": "2024 LoRR"
+}
