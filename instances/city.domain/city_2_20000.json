@@ -1,0 +1,8 @@
+{
+    "mapFile": "maps/Paris_1_256.map",
+    "agentFile": "agents/city_20000.agents",
+    "teamSize": 20000,
+    "taskFile": "tasks/city.tasks",
+    "numTasksReveal": 2.0,
+    "version": "2024 LoRR"
+}

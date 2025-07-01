@@ -1,0 +1,8 @@
+{
+    "mapFile": "maps/scene_mp_2p_01.map",
+    "agentFile": "agents/IHLargeTest_8000.agents",
+    "teamSize": 8000,
+    "taskFile": "tasks/IHLargeTest.tasks",
+    "numTasksReveal": 1.5,
+    "version": "2024 LoRR"
+}
