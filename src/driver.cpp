@@ -52,9 +52,9 @@ int main(int argc, char **argv)
         ("preprocessTimeLimit,p", po::value<int>()->default_value(30000), "the time limit for preprocessing in milliseconds")
         ("logFile,l", po::value<std::string>()->default_value(""), "redirect stdout messages into the specified log file")
         ("logDetailLevel,d", po::value<int>()->default_value(1), "the minimum severity level of log messages to display, 1--showing all the messages, 2--showing warnings and fatal errors, 3--showing fatal errors only")
-        ("useTraffic,u", po::value<bool>()->default_value(false), "use of traffic in scheduling")
+        ("useTraffic,u", po::value<bool>()->default_value(true), "use of traffic in scheduling")
         ("assignNew,n", po::value<bool>()->default_value(false), "wether new agents only or allow task swapping")
-        ("scheduleModel,m", po::value<int>()->default_value(1), "maching or flow, 1-matching, 2-flow")
+        ("scheduleModel,m", po::value<int>()->default_value(1), "maching or flow, 1-flow-traffic, 2-flow-traffic-hist, 3-matching")
         ("commitWindow,w", po::value<int>()->default_value(1), "commit window");
     clock_t start_time = clock();
     po::store(po::parse_command_line(argc, argv, desc), vm);
