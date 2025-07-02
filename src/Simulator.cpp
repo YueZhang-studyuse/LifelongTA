@@ -65,7 +65,7 @@ void Simulator::sync_shared_env(SharedEnvironment* env)
                 counter = 3;
             else if (planner_movements[i].back() == Action::WE)
                 counter = 4;
-            env->past_waitings[curr_states[i].location*5+counter].first += time;
+            env->past_waitings[curr_states[i].location*5+counter].first = env->past_waitings[curr_states[i].location*5+counter].first*0.9 + time;
             env->past_waitings[curr_states[i].location*5+counter].second++;
             env->accu_waitings[i]=0;
         }

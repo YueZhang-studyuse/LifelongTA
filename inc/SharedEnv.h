@@ -39,6 +39,7 @@ public:
 
     SharedEnvironment(){}
 
-    vector<pair<int,int>> past_waitings;
+    // vector<pair<int,int>> past_waitings;
+    vector<pair<double,int>> past_waitings;
     vector<int> accu_waitings;
 };

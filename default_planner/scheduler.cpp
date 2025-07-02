@@ -816,7 +816,7 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
 
 }
 
-void schedule_plan_flow_hist(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<pair<int,int>>& background_flow, bool new_only)
+void schedule_plan_flow_hist(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<pair<double,int>>& background_flow, bool new_only)
 {
     auto start_time = std::chrono::high_resolution_clock::now();
 
