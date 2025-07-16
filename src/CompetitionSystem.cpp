@@ -141,6 +141,7 @@ void BaseSystem::simulate(int simulation_time)
 
     for (; simulator.get_curr_timestep() < simulation_time; )
     {
+        cout<<"current timestep "<<simulator.get_curr_timestep()<<endl;
         // find a plan
         sync_shared_env();
 
