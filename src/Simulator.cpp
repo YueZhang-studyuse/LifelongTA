@@ -28,45 +28,44 @@ vector<State> Simulator::move(vector<Action>& actions)
     curr_states = model->result_states(curr_states, actions);
     timestep++;
 
-    cout<<"movements:"<<endl;
+    // cout<<"movements:"<<endl;
 
-    for (int k = 0; k < num_of_agents; k++){
-        paths[k].push_back(curr_states[k]);
-        // actual_movements[k].push_back(actions[k]);
-        if (actions[k] == Action::N)
-            {
-                cout<<"NO";
-            }
-            else if (actions[k] == Action::E)
-            {
-                cout<<"EA";
-            } 
-            else if (actions[k] == Action::S)
-            {
-                cout<<"SO";
-            }
-            else if (actions[k] == Action::WE)
-            {
-                cout<<"WE";
-            }
-            else if (actions[k] == Action::NA)
-            {
-                cout<<"T";
-            }
-            else
-            {
-                cout<<"W";
-            }
-            cout<<",";
-    }
-    cout<<endl;
+    // for (int k = 0; k < num_of_agents; k++){
+    //     paths[k].push_back(curr_states[k]);
+    //     // actual_movements[k].push_back(actions[k]);
+    //     if (actions[k] == Action::N)
+    //         {
+    //             cout<<"NO";
+    //         }
+    //         else if (actions[k] == Action::E)
+    //         {
+    //             cout<<"EA";
+    //         } 
+    //         else if (actions[k] == Action::S)
+    //         {
+    //             cout<<"SO";
+    //         }
+    //         else if (actions[k] == Action::WE)
+    //         {
+    //             cout<<"WE";
+    //         }
+    //         else if (actions[k] == Action::NA)
+    //         {
+    //             cout<<"T";
+    //         }
+    //         else
+    //         {
+    //             cout<<"W";
+    //         }
+    //         cout<<",";
+    //}
+    // cout<<endl;
     //return move_valid;
     return curr_states;
 }
 
 void Simulator::sync_shared_env(SharedEnvironment* env) 
 {
-    double decay = 0.9;
     for (int i = 0; i < planner_movements.size(); i++)
     {
         if (planner_movements[i].back() == Action::NA)
@@ -82,8 +81,8 @@ void Simulator::sync_shared_env(SharedEnvironment* env)
                 continue; // no waiting time to add
             }
             int time = env->accu_waitings[i];
-            env->past_waitings[curr_states[i].location*5].first += time;
-            env->past_waitings[curr_states[i].location*5].second++;
+            // env->past_waitings[curr_states[i].location*5].first += time;
+            // env->past_waitings[curr_states[i].location*5].second++;
             //north, east, south, west in order
             int counter = 0;
             if (planner_movements[i].back() == Action::N)
@@ -94,7 +93,7 @@ void Simulator::sync_shared_env(SharedEnvironment* env)
                 counter = 3;
             else if (planner_movements[i].back() == Action::WE)
                 counter = 4;
-            env->past_waitings[curr_states[i].location*5+counter].first = env->past_waitings[curr_states[i].location*5+counter].first*decay + time;
+            env->past_waitings[curr_states[i].location*5+counter].first = env->past_waitings[curr_states[i].location*5+counter].first + time;
             env->past_waitings[curr_states[i].location*5+counter].second++;
             env->accu_waitings[i]=0;
         }

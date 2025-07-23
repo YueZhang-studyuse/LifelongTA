@@ -32,7 +32,7 @@ namespace DefaultPlanner{
 
     std::vector<Double4> get_opened_flow(SharedEnvironment* env)
     {
-        double decay = 0.9;
+        double decay = 1;
         std::vector<Double4> background_flow(env->map.size(),Double4{0,0,0,0});
         //for (int i_task=0 ; i_task < env->task_pool.size() ;i_task++)
         for (auto task: env->task_pool)

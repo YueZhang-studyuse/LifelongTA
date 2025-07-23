@@ -193,7 +193,7 @@ void TaskManager::reveal_tasks(int timestep)
         list<int> locs = tasks[i];
         Task* task = new Task(task_id,locs,timestep);
         ongoing_tasks[task->task_id] = task;
-        all_tasks.push_back(task);
+        //all_tasks.push_back(task);
         new_tasks.push_back(task->task_id);         // record the new tasks
         logger->log_info("Task " + std::to_string(task_id) + " is revealed");
         task_id++;
