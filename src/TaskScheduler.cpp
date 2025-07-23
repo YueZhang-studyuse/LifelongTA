@@ -51,6 +51,10 @@ void TaskScheduler::plan(int time_limit, std::vector<int> & proposed_schedule)
     {
         DefaultPlanner::schedule_plan_h(limit, proposed_schedule, env, new_only);
     }
+    else  if (solver == 5 && !use_traffic)
+    {
+        DefaultPlanner::schedule_plan_raw(limit, proposed_schedule, env);
+    }
     else
     {
         std::cerr << "Invalid solver type. Please choose either 1 (matching) or 2 (flow)." << std::endl;
