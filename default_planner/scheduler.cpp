@@ -1001,7 +1001,7 @@ void schedule_plan_flow_hist(int time_limit, std::vector<int> & proposed_schedul
                 path.push_back(task_loc);
                 // cout << "Worker " << i << " is assigned to Task " << task_id  << " through intermediate nodes." << endl;
                 proposed_schedule[flexible_agent_ids[i]] = task_id;
-                if (use_traffic && env->curr_timestep >= 100)
+                if (env->curr_timestep >= 100)
                     agent_guide_path[flexible_agent_ids[i]] = path;
                 task_loc_ids[task_loc].pop_front();
                 if (task_loc_ids[task_loc].empty())
