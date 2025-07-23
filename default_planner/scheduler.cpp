@@ -83,6 +83,7 @@ void schedule_plan_raw(int time_limit, std::vector<int> & proposed_schedule,  Sh
             for (int loc : env->task_pool[t_id].locations){
                 dist += DefaultPlanner::get_h(env, c_loc, loc);
                 c_loc = loc;
+                break; // only consider the first location of the task for the makespan
             }
 
             // update the new minimum makespan
