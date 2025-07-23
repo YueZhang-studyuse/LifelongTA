@@ -32,6 +32,7 @@ public:
 
         actual_movements.resize(num_of_agents);
         planner_movements.resize(num_of_agents);
+        planner_movement.resize(num_of_agents, Action::NA);
     }
 
     vector<State> move(vector<Action>& next_actions);
@@ -74,6 +75,7 @@ private:
 
     vector<list<Action>> actual_movements;
     vector<list<Action>> planner_movements;
+    vector<Action> planner_movement;
 
     bool all_valid = true;
     

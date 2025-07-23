@@ -9,13 +9,13 @@ vector<State> Simulator::move(vector<Action>& actions)
     {
         //move_valid = false;
         all_valid = false;
-        // if (k >= actions.size()){
-        //     planner_movements[k].push_back(Action::NA);
-        // }
-        // else
-        // {
-        //     planner_movements[k].push_back(actions[k]);
-        // }
+        if (k >= actions.size()){
+            planner_movement[k] = Action::NA;
+        }
+        else
+        {
+            planner_movement[k] = actions[k];
+        }
     }
 
     if (!model->is_valid(curr_states, actions, timestep))
@@ -66,11 +66,19 @@ vector<State> Simulator::move(vector<Action>& actions)
 
 void Simulator::sync_shared_env(SharedEnvironment* env) 
 {
-    for (int i = 0; i < planner_movements.size(); i++)
+    //decay the past waiting
+    double decay_rate = 0.9;
+    for (auto & past_waiting : env->past_waitings)
     {
-        if (planner_movements[i].back() == Action::NA)
+        past_waiting.first *= decay_rate;
+        past_waiting.second *= decay_rate;
+    }
+    
+    for (int i = 0; i < planner_movement.size(); i++)
+    {
+        if (planner_movement[i] == Action::NA)
             continue;
-        if (planner_movements[i].back() == Action::WA)
+        if (planner_movement[i] == Action::WA)
         {
             env->accu_waitings[i]++;
         }
@@ -81,20 +89,22 @@ void Simulator::sync_shared_env(SharedEnvironment* env)
                 continue; // no waiting time to add
             }
             int time = env->accu_waitings[i];
-            // env->past_waitings[curr_states[i].location*5].first += time;
-            // env->past_waitings[curr_states[i].location*5].second++;
+            if (time == 0)
+            {
+                continue; // no waiting time to add
+            }
             //north, east, south, west in order
             int counter = 0;
-            if (planner_movements[i].back() == Action::N)
+            if (planner_movement[i] == Action::N)
                 counter = 1;
-            else if (planner_movements[i].back() == Action::E)
+            else if (planner_movement[i] == Action::E)
                 counter = 2;
-            else if (planner_movements[i].back() == Action::S)
+            else if (planner_movement[i] == Action::S)
                 counter = 3;
-            else if (planner_movements[i].back() == Action::WE)
+            else if (planner_movement[i] == Action::WE)
                 counter = 4;
-            env->past_waitings[curr_states[i].location*5+counter].first = env->past_waitings[curr_states[i].location*5+counter].first + time;
-            env->past_waitings[curr_states[i].location*5+counter].second++;
+            env->past_waitings[curr_states[i].location*5+counter].first += time;
+            env->past_waitings[curr_states[i].location*5+counter].second += 1;
             env->accu_waitings[i]=0;
         }
     }
