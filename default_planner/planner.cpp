@@ -25,14 +25,15 @@ namespace DefaultPlanner{
     TrajLNS trajLNS;
 
 
-    std::vector<Int4> get_flow() 
-    {
-        return trajLNS.flow;
-    }
+    // std::vector<Int4> get_flow() 
+    // {
+    //     return trajLNS.flow;
+    // }
 
-    std::vector<Int4> get_opened_flow(SharedEnvironment* env)
+    std::vector<Double4> get_opened_flow(SharedEnvironment* env)
     {
-        std::vector<Int4> background_flow(env->map.size(),Int4({0,0,0,0}));
+        double decay = 1;
+        std::vector<Double4> background_flow(env->map.size(),Double4{0,0,0,0});
         //for (int i_task=0 ; i_task < env->task_pool.size() ;i_task++)
         for (auto task: env->task_pool)
         {
@@ -42,6 +43,7 @@ namespace DefaultPlanner{
                 if (trajLNS.trajs[agent].empty())
                     continue;
                 int loc, prev_loc, diff, d;
+                double current_cost = 1;
                 for (int j = 1; j < trajLNS.trajs[agent].size(); j++)
                 {
                     loc = trajLNS.trajs[agent][j];
@@ -49,8 +51,8 @@ namespace DefaultPlanner{
                     diff = loc - prev_loc;
                     d = get_d(diff, env);
 
-                    background_flow[prev_loc].d[d] += 1;
-
+                    background_flow[prev_loc].d[d] += current_cost;
+                    current_cost *= decay;
                 }
             }
         }

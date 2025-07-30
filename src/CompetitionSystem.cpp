@@ -142,6 +142,7 @@ void BaseSystem::simulate(int simulation_time)
 
     for (; simulator.get_curr_timestep() < simulation_time; )
     {
+        cout<<"current timestep "<<simulator.get_curr_timestep()<<endl;
         // find a plan
         sync_shared_env();
 
@@ -261,6 +262,11 @@ void BaseSystem::saveResults(const string &fileName, int screen) const
 
     js["numEntryTimeouts"] = total_timetous;
 
+    json planning_times = json::array();
+    for (double time: planner_times)
+        planning_times.push_back(time);
+    js["plannerTimes"] = planning_times;
+
     // Save start locations[x,y,orientation]
     if (screen <= 2)
     {
@@ -276,10 +282,10 @@ void BaseSystem::saveResults(const string &fileName, int screen) const
     {
         js["plannerPaths"] = simulator.planned_path_to_json();
 
-        json planning_times = json::array();
-        for (double time: planner_times)
-            planning_times.push_back(time);
-        js["plannerTimes"] = planning_times;
+        // json planning_times = json::array();
+        // for (double time: planner_times)
+        //     planning_times.push_back(time);
+        // js["plannerTimes"] = planning_times;
 
         // Save errors
         js["errors"] = simulator.action_errors_to_json();

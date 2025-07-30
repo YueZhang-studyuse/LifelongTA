@@ -13,9 +13,9 @@ namespace DefaultPlanner{
 
     void plan(int time_limit,vector<Action> & actions,  SharedEnvironment* env, unordered_map<int,list<int>> agent_guide_path);
 
-    std::vector<Int4> get_flow();
+    // std::vector<Int4> get_flow();
 
-    std::vector<Int4> get_opened_flow(SharedEnvironment* env);
+    std::vector<Double4> get_opened_flow(SharedEnvironment* env);
     void plan_pibt(int time_limit,vector<Action> & actions, SharedEnvironment* env);
 
 

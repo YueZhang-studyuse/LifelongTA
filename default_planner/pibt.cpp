@@ -74,7 +74,6 @@ bool causalPIBT(int curr_id, int higher_id,std::vector<State>& prev_states,
 			return a.heuristic < b.heuristic; 
 		});
 
-
     for (auto& next: successors)
 	{
 		// if(occupied[next.location])
@@ -106,9 +105,9 @@ bool causalPIBT(int curr_id, int higher_id,std::vector<State>& prev_states,
     next_states.at(curr_id) = State(prev_loc,-1 ,-1);;
     decision.at(prev_loc) = curr_id;     
 
-	//#ifndef NDEBUG
+	#ifndef NDEBUG
 		std::cout<<"false: "<< next_states[curr_id].location<<","<<next_states[curr_id].orientation <<std::endl;
-	//#endif   
+	#endif   
 
     return false;
 }

@@ -20,7 +20,7 @@ public:
     // return next states for all agents
     virtual void plan(int time_limit, std::vector<Action> & plan);
 
-    std::vector<DefaultPlanner::Int4> get_flow();
+    std::vector<DefaultPlanner::Double4> get_flow();
     void plan_pibt(int time_limit,vector<Action> & actions); 
 
 };

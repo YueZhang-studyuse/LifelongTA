@@ -10,16 +10,16 @@ namespace DefaultPlanner
 
     // Traffic flow assignment end time tolerance in ms.
     // The default planner will end the traffic flow assignment phase this many milliseconds before traffic flow assignment end time.
-    const int TRAFFIC_FLOW_ASSIGNMENT_END_TIME_TOLERANCE = 10;
+    const int TRAFFIC_FLOW_ASSIGNMENT_END_TIME_TOLERANCE = 60;
 
 
     // The default planner timelimit tolerance in ms.
     // The MAPFPlanner will deduct this value from the time limit for default planner.
-    const int PLANNER_TIMELIMIT_TOLERANCE = 10;
+    const int PLANNER_TIMELIMIT_TOLERANCE = 20;
 
     // The default scheduler timelimit tolerance in ms.
     // The TaskScheduler will deduct this value from the time limit for default scheduler.
-    const int SCHEDULER_TIMELIMIT_TOLERANCE = 10;
+    const int SCHEDULER_TIMELIMIT_TOLERANCE = 20;
 
 
 

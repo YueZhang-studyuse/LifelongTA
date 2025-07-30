@@ -54,7 +54,7 @@ int main(int argc, char **argv)
         ("logDetailLevel,d", po::value<int>()->default_value(1), "the minimum severity level of log messages to display, 1--showing all the messages, 2--showing warnings and fatal errors, 3--showing fatal errors only")
         ("useTraffic,u", po::value<bool>()->default_value(false), "use of traffic in scheduling")
         ("assignNew,n", po::value<bool>()->default_value(false), "wether new agents only or allow task swapping")
-        ("scheduleModel,m", po::value<int>()->default_value(1), "maching or flow, 1-matching, 2-flow")
+        ("scheduleModel,m", po::value<int>()->default_value(1), "scheduler model, 1- flow, 2- flow with history edge cost, 3- matching + dijkstra, 4- matching + lazily stored h, 5- greedy")
         ("commitWindow,w", po::value<int>()->default_value(1), "commit window");
     clock_t start_time = clock();
     po::store(po::parse_command_line(argc, argv, desc), vm);

@@ -15,14 +15,14 @@ class TaskScheduler
         virtual void initialize(int preprocess_time_limit);
         virtual void plan(int time_limit, std::vector<int> & proposed_schedule);
 
-        void set_flow(std::vector<DefaultPlanner::Int4> flow);
+        void set_flow(std::vector<DefaultPlanner::Double4> flow);
 
         void set_use_traffic(bool use_traffic);
         void set_new_only(bool new_only);
         void set_solver(int solver);
         void set_max_matching_edges(int max_matching_edges);
 
-        std::vector<DefaultPlanner::Int4> background_flow;
+        std::vector<DefaultPlanner::Double4> background_flow;
 
         bool use_traffic = false;
         bool new_only = false;

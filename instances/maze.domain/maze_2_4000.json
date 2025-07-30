@@ -1,0 +1,8 @@
+{
+    "mapFile": "maps/maze-128-128-2.map",
+    "agentFile": "agents/maze_4000.agents",
+    "teamSize": 4000,
+    "taskFile": "tasks/maze.tasks",
+    "numTasksReveal": 2.0,
+    "version": "2024 LoRR"
+}
