@@ -54,11 +54,11 @@ void schedule_plan_raw(int time_limit, std::vector<int> & proposed_schedule,  Sh
     std::unordered_set<int>::iterator it = free_agents.begin();
     while (it != free_agents.end())
     {
-        //keep assigning until timeout
-        if (std::chrono::steady_clock::now() > endtime)
-        {
-            break;
-        }
+        // //keep assigning until timeout
+        // if (std::chrono::steady_clock::now() > endtime)
+        // {
+        //     break;
+        // }
         int i = *it;
 
         assert(env->curr_task_schedule[i] == -1);
@@ -70,11 +70,11 @@ void schedule_plan_raw(int time_limit, std::vector<int> & proposed_schedule,  Sh
         // iterate over all the unassigned tasks to find the one with the minimum makespan for agent i
         for (int t_id : free_tasks)
         {
-            //check for timeout every 10 task evaluations
-            if (count % 10 == 0 && std::chrono::steady_clock::now() > endtime)
-            {
-                break;
-            }
+            // //check for timeout every 10 task evaluations
+            // if (count % 10 == 0 && std::chrono::steady_clock::now() > endtime)
+            // {
+            //     break;
+            // }
             dist = 0;
             c_loc = env->curr_states.at(i).location;
 

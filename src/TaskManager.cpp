@@ -104,16 +104,16 @@ bool TaskManager::set_task_assignment(vector< int>& assignment)
         ongoing_tasks[t_id]->agent_assigned = a;
     }
     
-    cout<<"assignments:"<<endl;
-    for (int a = 0; a < current_assignment.size(); a++)
-    {
-        if (actual_schedule[a].empty() || current_assignment[a] != actual_schedule[a].back().second)
-        {
-            //actual_schedule[a].push_back(make_pair(curr_timestep,current_assignment[a]));
-            cout<<"(Agent "<<a<<",Task "<<current_assignment[a]<<")";
-        }
-    }
-    cout<<endl;
+    // cout<<"assignments:"<<endl;
+    // for (int a = 0; a < current_assignment.size(); a++)
+    // {
+    //     if (actual_schedule[a].empty() || current_assignment[a] != actual_schedule[a].back().second)
+    //     {
+    //         //actual_schedule[a].push_back(make_pair(curr_timestep,current_assignment[a]));
+    //         cout<<"(Agent "<<a<<",Task "<<current_assignment[a]<<")";
+    //     }
+    // }
+    // cout<<endl;
 
     return true;
 }
@@ -153,7 +153,7 @@ list<int> TaskManager::check_finished_tasks(vector<State>& states, int timestep)
             {
                 logger->log_info("Agent " + std::to_string(task->agent_assigned) + " opens task " + std::to_string(task->task_id), timestep);
             }
-            events.push_back(make_tuple(timestep,k,task->task_id,task->idx_next_loc));
+            //events.push_back(make_tuple(timestep,k,task->task_id,task->idx_next_loc));
         }
     }
     return finished_tasks_this_timestep;
