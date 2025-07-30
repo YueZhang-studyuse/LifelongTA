@@ -82,7 +82,7 @@ void schedule_plan_raw(int time_limit, std::vector<int> & proposed_schedule,  Sh
             // makespan: the time for the agent to complete all the errands of the task t_id in order
             for (int loc : env->task_pool[t_id].locations){
                 //dist += DefaultPlanner::get_h(env, c_loc, loc);
-                dist += manhattanDistance(c_loc, loc);
+                dist += manhattanDistance(c_loc, loc, env);
                 c_loc = loc;
                 break; // only consider the first location of the task for the makespan
             }
