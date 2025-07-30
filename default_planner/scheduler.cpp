@@ -81,7 +81,8 @@ void schedule_plan_raw(int time_limit, std::vector<int> & proposed_schedule,  Sh
             // iterate over the locations (errands) of the task to compute the makespan to finish the task
             // makespan: the time for the agent to complete all the errands of the task t_id in order
             for (int loc : env->task_pool[t_id].locations){
-                dist += DefaultPlanner::get_h(env, c_loc, loc);
+                //dist += DefaultPlanner::get_h(env, c_loc, loc);
+                dist += manhattanDistance(c_loc, loc);
                 c_loc = loc;
                 break; // only consider the first location of the task for the makespan
             }
@@ -792,7 +793,7 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
                 path.push_back(task_loc);
                 // cout << "Worker " << i << " is assigned to Task " << task_id  << " through intermediate nodes." << endl;
                 proposed_schedule[flexible_agent_ids[i]] = task_id;
-                if (use_traffic && env->curr_timestep >= 100)
+                // if (use_traffic && env->curr_timestep >= 100)
                     agent_guide_path[flexible_agent_ids[i]] = path;
                 task_loc_ids[task_loc].pop_front();
                 if (task_loc_ids[task_loc].empty())
@@ -1001,7 +1002,7 @@ void schedule_plan_flow_hist(int time_limit, std::vector<int> & proposed_schedul
                 path.push_back(task_loc);
                 // cout << "Worker " << i << " is assigned to Task " << task_id  << " through intermediate nodes." << endl;
                 proposed_schedule[flexible_agent_ids[i]] = task_id;
-                if (env->curr_timestep >= 100)
+                // if (env->curr_timestep >= 100)
                     agent_guide_path[flexible_agent_ids[i]] = path;
                 task_loc_ids[task_loc].pop_front();
                 if (task_loc_ids[task_loc].empty())

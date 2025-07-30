@@ -23,9 +23,9 @@ void Entry::initialize(int preprocess_time_limit)
 void Entry::compute(int time_limit, std::vector<Action> & plan, std::vector<int> & proposed_schedule)
 {
 
-    // if (time_in_commit_window == 0)
-    // {
-         //first call task schedule
+    if (time_in_commit_window == 0)
+    {
+        //  first call task schedule
 
         scheduler->set_flow(planner->get_flow());
         scheduler->plan(time_limit,proposed_schedule);
@@ -35,37 +35,37 @@ void Entry::compute(int time_limit, std::vector<Action> & plan, std::vector<int>
         
         //call the planner to compute the actions
         planner->plan(time_limit,plan);
-    // }
-    // else
-    // {
-    //     //first fill the current schedule
-    //     for (int i = 0; i < env->num_of_agents; i++)
-    //     {
-    //         env->goal_locations[i].clear();
-    //         int task_id = env->curr_task_schedule[i];
-    //         if (env->task_pool.find(task_id) != env->task_pool.end())
-    //         {
-    //             proposed_schedule[i] = task_id;
-    //             int i_loc = env->task_pool[task_id].idx_next_loc;
-    //             env->goal_locations[i].push_back({env->task_pool[task_id].locations.at(i_loc), env->task_pool[task_id].t_revealed});
-    //         }
-    //         else
-    //         {
-    //             proposed_schedule[i] = -1;
-    //         }
-    //     }
-    //     //then call planner with only pibt
-    //     planner->plan_pibt(time_limit,plan);
-    // }
+    }
+    else
+    {
+        //first fill the current schedule
+        for (int i = 0; i < env->num_of_agents; i++)
+        {
+            env->goal_locations[i].clear();
+            int task_id = env->curr_task_schedule[i];
+            if (env->task_pool.find(task_id) != env->task_pool.end())
+            {
+                proposed_schedule[i] = task_id;
+                int i_loc = env->task_pool[task_id].idx_next_loc;
+                env->goal_locations[i].push_back({env->task_pool[task_id].locations.at(i_loc), env->task_pool[task_id].t_revealed});
+            }
+            else
+            {
+                proposed_schedule[i] = -1;
+            }
+        }
+        //then call planner with only pibt
+        planner->plan_pibt(time_limit,plan);
+    }
 
-    // if (time_in_commit_window == commit_window-1)
-    // {
-    //     time_in_commit_window = 0;
-    // }
-    // else
-    // {
-    //     time_in_commit_window++;
-    // }
+    if (time_in_commit_window == commit_window-1)
+    {
+        time_in_commit_window = 0;
+    }
+    else
+    {
+        time_in_commit_window++;
+    }
 
 }
 
