@@ -122,8 +122,14 @@ void schedule_plan_h(int time_limit, std::vector<int> & proposed_schedule,  Shar
 
     proposed_schedule.resize(env->num_of_agents, -1);
 
-    vector<int>flexible_agent_ids(env->new_freeagents); //storing the agents not doing a opened task
+    vector<int>flexible_agent_ids(); //storing the agents not doing a opened task
     vector<int>flexible_task_ids; //storing the tasks we consider to swap/assign
+
+    for (int agent = 0; agent < env->num_of_agents; agent++)
+    {
+        if (env->curr_task_schedule[agent] == -1)
+            flexible_agent_ids.push_back(agent);
+    }
 
     for (auto task: env->task_pool)
     {
@@ -604,9 +610,15 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
 
     proposed_schedule.resize(env->num_of_agents, -1);
 
-    vector<int>flexible_agent_ids(env->new_freeagents); //storing the agents not doing a opened task
+    vector<int>flexible_agent_ids(); //storing the agents not doing a opened task
     vector<int>flexible_task_ids; //storing the tasks we consider to swap/assign
     unordered_map<int,list<int>> task_loc_ids;
+    
+    for (int agent = 0; agent < env->num_of_agents; agent++)
+    {
+        if (env->curr_task_schedule[agent] == -1)
+            flexible_agent_ids.push_back(agent);
+    }
 
     for (auto task: env->task_pool)
     {
