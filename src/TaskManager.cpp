@@ -174,6 +174,7 @@ void TaskManager::sync_shared_env(SharedEnvironment* env)
     }
     env->curr_task_schedule = current_assignment;
     env->new_freeagents = new_freeagents;
+    cout<<"new free agents: " << env->new_freeagents.size() << endl;
     env->new_tasks = new_tasks; 
 }
 

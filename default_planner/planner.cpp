@@ -156,11 +156,14 @@ namespace DefaultPlanner{
             
 
             // set the goal location of each agent
-            if (env->goal_locations[i].empty()){
+            if (env->goal_locations[i].empty())
+            {
+                cout<<"no goal "<< i <<endl;
                 trajLNS.tasks[i] = dummy_goals.at(i);
                 p[i] = p_copy[i];
             }
-            else{
+            else
+            {
                 trajLNS.tasks[i] = env->goal_locations[i].front().first;
             }
 
@@ -299,6 +302,8 @@ namespace DefaultPlanner{
         TimePoint end_time = start_time + std::chrono::milliseconds(time_limit - pibt_time - TRAFFIC_FLOW_ASSIGNMENT_END_TIME_TOLERANCE); 
         cout << "plan limit " << time_limit <<endl;
 
+        int no_goal_cnt = 0;
+
         // recrod the initial location of each agent as dummy goals in case no goal is assigned to the agent.
         if (env->curr_timestep == 0){
             dummy_goals.resize(env->num_of_agents);
@@ -317,7 +322,9 @@ namespace DefaultPlanner{
         for(int i=0; i<env->num_of_agents; i++)
         {
             // set the goal location of each agent
-            if (env->goal_locations[i].empty()){
+            if (env->goal_locations[i].empty())
+            {
+                no_goal_cnt++;
                 trajLNS.tasks[i] = dummy_goals.at(i);
                 p[i] = p_copy[i];
             }
@@ -344,7 +351,8 @@ namespace DefaultPlanner{
             }
             
         }
-
+        
+        cout<<"no goal cnt in pibt "<< no_goal_cnt <<endl;
         // sort agents based on the current priority
         std::sort(ids.begin(), ids.end(), [&](int a, int b) {
                 return p.at(a) > p.at(b);

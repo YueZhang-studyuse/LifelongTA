@@ -53,9 +53,9 @@ bool causalPIBT(int curr_id, int higher_id,std::vector<State>& prev_states,
 		successors.emplace_back(neighbor,min_heuristic,-1,rand());
 	}
 
-	int wait_heuristic = get_gp_h(lns, curr_id, prev_loc);
+	// int wait_heuristic = get_gp_h(lns, curr_id, prev_loc);
 
-	successors.emplace_back(prev_loc, wait_heuristic,-1,rand());
+	// successors.emplace_back(prev_loc, wait_heuristic,-1,rand());
 
 
 	std::sort(successors.begin(), successors.end(), 
@@ -82,19 +82,22 @@ bool causalPIBT(int curr_id, int higher_id,std::vector<State>& prev_states,
 		
 		if (next.location == -1)
 			continue;
-		if (decision[next.location] != -1){
+		if (decision[next.location] != -1)
+		{
 			continue;
 		}
-		if (higher_id != -1 && prev_decision[next.location] == higher_id){
+		if (higher_id != -1 && prev_decision[next.location] == higher_id)
+		{
 			continue;
 		}
 		next_states.at(curr_id) = State(next.location, -1, -1);
 		decision.at(next.location) = curr_id;
 
-        if (prev_decision.at(next.location) != -1 && 
-			next_states.at(prev_decision.at(next.location)).location == -1){
+        if (prev_decision.at(next.location) != -1 && next_states.at(prev_decision.at(next.location)).location == -1)
+		{
             int lower_id = prev_decision.at(next.location);
-            if (!causalPIBT(lower_id,curr_id,prev_states,next_states, prev_decision,decision, occupied,lns)){
+            if (!causalPIBT(lower_id,curr_id,prev_states,next_states, prev_decision,decision, occupied,lns))
+			{
 				continue;
             }
         }
@@ -105,9 +108,9 @@ bool causalPIBT(int curr_id, int higher_id,std::vector<State>& prev_states,
     next_states.at(curr_id) = State(prev_loc,-1 ,-1);;
     decision.at(prev_loc) = curr_id;     
 
-	#ifndef NDEBUG
-		std::cout<<"false: "<< next_states[curr_id].location<<","<<next_states[curr_id].orientation <<std::endl;
-	#endif   
+	// #ifndef NDEBUG
+		// std::cout<<"false: "<< next_states[curr_id].location<<","<<next_states[curr_id].orientation <<std::endl;
+	// #endif   
 
     return false;
 }

@@ -122,7 +122,7 @@ void schedule_plan_h(int time_limit, std::vector<int> & proposed_schedule,  Shar
 
     proposed_schedule.resize(env->num_of_agents, -1);
 
-    vector<int>flexible_agent_ids(); //storing the agents not doing a opened task
+    vector<int>flexible_agent_ids; //storing the agents not doing a opened task
     vector<int>flexible_task_ids; //storing the tasks we consider to swap/assign
 
     for (int agent = 0; agent < env->num_of_agents; agent++)
@@ -610,10 +610,10 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
 
     proposed_schedule.resize(env->num_of_agents, -1);
 
-    vector<int>flexible_agent_ids(); //storing the agents not doing a opened task
+    vector<int>flexible_agent_ids; //storing the agents not doing a opened task
     vector<int>flexible_task_ids; //storing the tasks we consider to swap/assign
     unordered_map<int,list<int>> task_loc_ids;
-    
+
     for (int agent = 0; agent < env->num_of_agents; agent++)
     {
         if (env->curr_task_schedule[agent] == -1)
@@ -806,7 +806,7 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
                 // cout << "Worker " << i << " is assigned to Task " << task_id  << " through intermediate nodes." << endl;
                 proposed_schedule[flexible_agent_ids[i]] = task_id;
                 // if (use_traffic && env->curr_timestep >= 100)
-                    agent_guide_path[flexible_agent_ids[i]] = path;
+                    // agent_guide_path[flexible_agent_ids[i]] = path;
                 task_loc_ids[task_loc].pop_front();
                 if (task_loc_ids[task_loc].empty())
                 {
@@ -839,9 +839,15 @@ void schedule_plan_flow_hist(int time_limit, std::vector<int> & proposed_schedul
 
     proposed_schedule.resize(env->num_of_agents, -1);
 
-    vector<int>flexible_agent_ids(env->new_freeagents); //storing the agents not doing a opened task
+    vector<int>flexible_agent_ids; //storing the agents not doing a opened task
     vector<int>flexible_task_ids; //storing the tasks we consider to swap/assign
     unordered_map<int,list<int>> task_loc_ids;
+
+    for (int agent = 0; agent < env->num_of_agents; agent++)
+    {
+        if (env->curr_task_schedule[agent] == -1)
+            flexible_agent_ids.push_back(agent);
+    }
 
     for (auto task: env->task_pool)
     {

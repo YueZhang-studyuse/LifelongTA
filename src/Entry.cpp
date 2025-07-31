@@ -38,22 +38,8 @@ void Entry::compute(int time_limit, std::vector<Action> & plan, std::vector<int>
     }
     else
     {
-        //first fill the current schedule
-        for (int i = 0; i < env->num_of_agents; i++)
-        {
-            env->goal_locations[i].clear();
-            int task_id = env->curr_task_schedule[i];
-            if (env->task_pool.find(task_id) != env->task_pool.end())
-            {
-                proposed_schedule[i] = task_id;
-                int i_loc = env->task_pool[task_id].idx_next_loc;
-                env->goal_locations[i].push_back({env->task_pool[task_id].locations.at(i_loc), env->task_pool[task_id].t_revealed});
-            }
-            else
-            {
-                proposed_schedule[i] = -1;
-            }
-        }
+        //then update the first unfinished errand/location of tasks for planner reference
+        update_goal_locations(proposed_schedule);
         //then call planner with only pibt
         planner->plan_pibt(time_limit,plan);
     }

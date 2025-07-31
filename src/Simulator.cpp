@@ -4,6 +4,7 @@ using json = nlohmann::ordered_json;
 
 vector<State> Simulator::move(vector<Action>& actions) 
 {
+    int wait_cnt = 0;
     //bool move_valid = true;
     for (int k = 0; k < num_of_agents; k++)
     {
@@ -15,6 +16,10 @@ vector<State> Simulator::move(vector<Action>& actions)
         else
         {
             planner_movement[k] = actions[k];
+            if (actions[k] == Action::WA)
+            {
+                wait_cnt++;
+            }
         }
     }
 
@@ -27,6 +32,8 @@ vector<State> Simulator::move(vector<Action>& actions)
 
     curr_states = model->result_states(curr_states, actions);
     timestep++;
+
+    cout<<"num of waits: "<<wait_cnt<<endl;
 
     // cout<<"movements:"<<endl;
 
