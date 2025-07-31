@@ -137,6 +137,7 @@ int main(int argc, char **argv)
       stringStream << "fileStoragePath (" << file_storage_path << ") is not valid";
       logger->log_warning(stringStream.str());
     }
+
     planner->env->file_storage_path = file_storage_path;
 
     planner->scheduler->set_use_traffic(vm["useTraffic"].as<bool>());
@@ -151,8 +152,8 @@ int main(int argc, char **argv)
 
     std::vector<int> agents = read_int_vec(base_folder + read_param_json<std::string>(data, "agentFile"), team_size);
     std::vector<list<int>> tasks = read_int_vec(base_folder + read_param_json<std::string>(data, "taskFile"));
-    if (agents.size() > tasks.size())
-        logger->log_warning("Not enough tasks for robots (number of tasks < team size)");
+    // if (agents.size() > tasks.size())
+    //     logger->log_warning("Not enough tasks for robots (number of tasks < team size)");
 
     system_ptr = std::make_unique<BaseSystem>(grid, planner, agents, tasks, model);
 

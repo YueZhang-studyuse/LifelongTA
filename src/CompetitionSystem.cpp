@@ -188,6 +188,12 @@ void BaseSystem::simulate(int simulation_time)
 
         // update tasks
         task_manager.update_tasks(curr_states, proposed_schedule, simulator.get_curr_timestep());
+
+        if (task_manager.finish_all_tasks)
+        {
+            cout<<"All tasks finished at timestep "<<timestep<<endl;
+            break;
+        }
     }
 }
 

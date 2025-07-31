@@ -156,6 +156,11 @@ list<int> TaskManager::check_finished_tasks(vector<State>& states, int timestep)
             //events.push_back(make_tuple(timestep,k,task->task_id,task->idx_next_loc));
         }
     }
+    if (num_of_task_finish >= tasks.size())
+    {
+        finish_all_tasks = true;
+        logger->log_info("All tasks are finished at timestep " + std::to_string(timestep));
+    }
     return finished_tasks_this_timestep;
 }
 
@@ -187,10 +192,29 @@ void TaskManager::sync_shared_env(SharedEnvironment* env)
 void TaskManager::reveal_tasks(int timestep)
 {
     new_tasks.clear(); //prepare to push all new revealed tasks to the shared environment
-    while (ongoing_tasks.size() < num_tasks_reveal)
+    if (task_id >= tasks.size())
     {
-        int i = task_id%tasks.size();
-        list<int> locs = tasks[i];
+        return; // no new tasks to reveal
+    }
+    int current_reveal;
+    if (num_tasks_reveal < 1)
+    {
+        if (timestep%((int)(1.01/num_tasks_reveal)) == 0)
+        {
+            current_reveal = 1;
+        }
+        else
+        {
+            return; // no new tasks to reveal
+        }
+    }
+    else
+    {
+        current_reveal = (int)num_tasks_reveal;
+    }
+    for (int i = 0; i < num_tasks_reveal; i++)
+    {
+        list<int> locs = tasks[task_id];
         Task* task = new Task(task_id,locs,timestep);
         ongoing_tasks[task->task_id] = task;
         //all_tasks.push_back(task);

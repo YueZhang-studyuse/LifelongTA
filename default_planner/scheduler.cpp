@@ -603,9 +603,15 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
 
     proposed_schedule.resize(env->num_of_agents, -1);
 
-    vector<int>flexible_agent_ids(env->new_freeagents); //storing the agents not doing a opened task
+    vector<int>flexible_agent_ids; //storing the agents not doing a opened task
     vector<int>flexible_task_ids; //storing the tasks we consider to swap/assign
     unordered_map<int,list<int>> task_loc_ids;
+
+    for (int agent = 0; agent < env->num_of_agents; agent++)
+    {
+        if (env->curr_task_schedule[agent] == -1)
+            flexible_agent_ids.push_back(agent);
+    }
 
     for (auto task: env->task_pool)
     {
@@ -669,6 +675,11 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
     // Set supply/demand values
     supply[source] = num_workers; // Source supplies workers
     supply[sink] = -num_workers;  // Sink absorbs tasks
+    if (num_workers > num_tasks)
+    {
+        supply[source] = num_tasks; // Source supplies tasks
+        supply[sink] = -num_tasks;  // Sink absorbs tasks
+    }
 
     for (int i = 0; i < num_workers; ++i) supply[map_nodes[i]] = 0;
 
@@ -790,7 +801,7 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
                 int task_id = task_loc_ids[task_loc].front();
                 // node_to_task_id[current].pop_front();
                 path.push_back(task_loc);
-                // cout << "Worker " << i << " is assigned to Task " << task_id  << " through intermediate nodes." << endl;
+                //cout << "Worker " << flexible_agent_ids[i] << " is assigned to Task " << task_id  << " through intermediate nodes." << endl;
                 proposed_schedule[flexible_agent_ids[i]] = task_id;
                 if (use_traffic && env->curr_timestep >= 100)
                     agent_guide_path[flexible_agent_ids[i]] = path;
@@ -803,7 +814,8 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
             }
             else 
             {
-                cout << "No solution found." << endl;
+                proposed_schedule[flexible_agent_ids[i]] = -1;
+                //cout << "No solution found." << endl;
             }
         }
     }
