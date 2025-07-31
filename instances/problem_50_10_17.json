@@ -1,0 +1,8 @@
+{
+    "mapFile": "kiva.map",
+    "agentFile": "agents/50.agents",
+    "teamSize": 50,
+    "taskFile": "tasks/10/17.tasks",
+    "numTasksReveal": 10,
+    "version": "2024 LoRR"
+}
