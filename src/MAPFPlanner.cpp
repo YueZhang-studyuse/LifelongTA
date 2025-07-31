@@ -48,7 +48,7 @@ void MAPFPlanner::plan_pibt(int time_limit,vector<Action> & actions)
     return;
 }
 
-std::vector<DefaultPlanner::Double4> MAPFPlanner::get_flow() 
+std::vector<DefaultPlanner::Int4> MAPFPlanner::get_flow() 
 {
     // return DefaultPlanner::get_flow();
     return DefaultPlanner::get_opened_flow(env);

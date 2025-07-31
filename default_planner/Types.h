@@ -32,9 +32,9 @@ namespace DefaultPlanner{
 		int d[4];
 	};
 
-	struct Double4{
-		double d[4];
-	};
+	// struct Int4{
+	// 	int d[4];
+	// };
 
 	struct DCR{
 		int loc;

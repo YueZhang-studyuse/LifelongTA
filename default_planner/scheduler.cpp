@@ -278,7 +278,7 @@ void schedule_plan_h(int time_limit, std::vector<int> & proposed_schedule,  Shar
 }
 
 //with cost
-void schedule_plan_matching(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Double4> background_flow, bool use_traffic, bool new_only, int maximum_edges)
+void schedule_plan_matching(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Int4> background_flow, bool use_traffic, bool new_only, int maximum_edges)
 {
     auto start_time = std::chrono::high_resolution_clock::now();
     proposed_schedule.resize(env->num_of_agents, -1);
@@ -602,7 +602,7 @@ void schedule_plan_matching(int time_limit, std::vector<int> & proposed_schedule
     }
 }
 
-void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Double4> background_flow, bool use_traffic, bool new_only)
+void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  SharedEnvironment* env, std::vector<Int4> background_flow, bool use_traffic, bool new_only)
 {
     auto start_time = std::chrono::high_resolution_clock::now();
 

@@ -62,7 +62,7 @@ void TaskScheduler::plan(int time_limit, std::vector<int> & proposed_schedule)
     }
 }
 
-void TaskScheduler::set_flow(std::vector<DefaultPlanner::Double4> flow)
+void TaskScheduler::set_flow(std::vector<DefaultPlanner::Int4> flow)
 {
     background_flow = flow;
 }
