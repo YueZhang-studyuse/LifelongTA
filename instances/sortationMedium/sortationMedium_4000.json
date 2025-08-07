@@ -1,8 +1,0 @@
-{
-    "mapFile": "maps/sortation_medium.map",
-    "agentFile": "agents/sortationMedium_4000.agents",
-    "teamSize": 4000,
-    "taskFile": "tasks/output_sortation_medium.tasks",
-    "numTasksReveal": 1.5,
-    "version": "2024 LoRR"
-}

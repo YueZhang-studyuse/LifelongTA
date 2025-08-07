@@ -1,8 +1,0 @@
-{
-    "mapFile": "maps/scene_sp_sax_01.map",
-    "agentFile": "agents/IHxLargeTest_6000.agents",
-    "teamSize": 6000,
-    "taskFile": "tasks/IHxLargeTest.tasks",
-    "numTasksReveal": 1.5,
-    "version": "2024 LoRR"
-}

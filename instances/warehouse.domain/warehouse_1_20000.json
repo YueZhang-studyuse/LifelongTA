@@ -1,8 +1,0 @@
-{
-    "mapFile": "maps/warehouse_large.map",
-    "agentFile": "agents/warehouse_20000.agents",
-    "teamSize": 20000,
-    "taskFile": "tasks/warehouse.tasks",
-    "numTasksReveal": 1.0,
-    "version": "2024 LoRR"
-}
