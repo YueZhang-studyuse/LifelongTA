@@ -639,6 +639,11 @@ void schedule_plan_flow(int time_limit, std::vector<int> & proposed_schedule,  S
     int num_workers = flexible_agent_ids.size();
     int num_tasks = flexible_task_ids.size();
 
+    if (num_workers == 0 || num_tasks == 0)
+    {
+        return;
+    }
+
     // Start timing
     start_time = std::chrono::high_resolution_clock::now();
     
